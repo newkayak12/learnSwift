@@ -61,4 +61,56 @@ let name : String = "SH";
 print("My name is \(name)")
 
 
-//
+/**
+    2.3 주석
+ 
+    Xcode에는 말풍선 형태로 레퍼런스 문서의 요약된 내용을 보여주는 퀵헬프라는 기능이 있다. 코드를 작성하는 중에 레퍼런스 문서로 이동하지 않고 데이터 타입이나 메소드 등의 간단한 정보를 확인할 수 있는 아주 유용한 기능이다. 퀵헬프를 보려면 대상 (변수, 상수, 함수, 메소드, 타입 등)을 option 클릭으로 선택하면 된다.
+ 
+    한줄 주석은 //
+    여러 줄 주석은 \/**/\ 으로 작성한다.
+    또한 스위프트에서는 여러 줄 주석 안에서 한 줄 주석을 지원한다.
+ 
+    
+    >  마크업 문법을 활용한 문서화 주석
+    변수, 상수, 클래스, 메소드, 함수, 열거형 등을 설명하고자 하는 경우 일정한 마크업 형식에 따라 주석을 작성하면 퀵헬프를 통해 그 내용을 확인할 수 있다. 중요한 차이는 문서화를 위한 한 줄 주석은 슬래시 세 개를 사용하고, 여러 줄 주석은 별표 두 개를 사용한다는 것이다. 자동으로 문서화 주석 코드 조각을 생성하려면 문서로 만들고자하는 요소(상수, 변수, 함수)에 커서를 위치한 후 command + option + /를 선택한다.
+ */
+
+/// 오류 타입의 열거형이다.
+/// - noName : 이름 ~
+/// - incroeectAge(age:Int):  나이 ~
+/// - unknown: 알수 없음
+/// ```
+/// Hello : Error {
+///
+/// }
+/// ```
+enum HelloError: Error{
+    case noName
+    case incorrectAge(age:Int)
+    case unknown
+}
+/**
+    /\** 로 만든 주석
+ 
+    '-', '+', '*'로 원형 글머리 기호를 사용할 수 있고
+    1.과 같이 번호로 매길 수도 있다.
+    '---'로 문단을 바꾸거나
+    언더바, 별로 텍스트를 강조할 수 있다. *HELLO*와 같이 말이다.
+    [link](www.naver.com)과 같이 링크도 넣을 수 있다.
+    등호는 바로 위 텍스트를 큰 제목으로 보여준다.
+    제목
+    ===
+    
+ 
+    다른 텍스트보다 네 칸 이상 들여쓰면 코드 블록을 만들어준다. backQuote를 세 쌍 이상으로 묶어도 코드 블록을 만든다.
+```
+HelloError: Error {
+ 
+}
+```
+ 
+ Precondition, Postcondition, Requires, Invariant, Complexity, Important, Warning, Author, Copyright, Date, SeeAlso, Since, Version, Attension, Bug, Experiment, Note, Remark, ToDo 등의 키워드로 적절한 정보를 제공할 수 있다.
+ 
+    
+ */
+

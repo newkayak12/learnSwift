@@ -10,13 +10,15 @@
 		7E10353928719754007371E8 /* 00.AboutSwift.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 00.AboutSwift.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7E10353A287197DB007371E8 /* 01.swiftConsole.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 01.swiftConsole.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7E10353C28719CE8007371E8 /* 00.namingRule.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 00.namingRule.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		7E10353D2871BBC6007371E8 /* 01.variableAndConstant.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 01.variableAndConstant.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		7EB4E2802871BE8B00D76E7B /* 02.dataType.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 02.dataType.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		7E10352E2871966F007371E8 = {
 			isa = PBXGroup;
 			children = (
-				7E10353B28719C9C007371E8 /* 01.swiftStart */,
+				7E10353B28719C9C007371E8 /* 01.basic */,
 				7E1035382871972F007371E8 /* 00.abountSwift */,
 			);
 			sourceTree = "<group>";
@@ -30,12 +32,14 @@
 			path = 00.abountSwift;
 			sourceTree = "<group>";
 		};
-		7E10353B28719C9C007371E8 /* 01.swiftStart */ = {
+		7E10353B28719C9C007371E8 /* 01.basic */ = {
 			isa = PBXGroup;
 			children = (
 				7E10353C28719CE8007371E8 /* 00.namingRule.playground */,
+				7E10353D2871BBC6007371E8 /* 01.variableAndConstant.playground */,
+				7EB4E2802871BE8B00D76E7B /* 02.dataType.playground */,
 			);
-			path = 01.swiftStart;
+			path = 01.basic;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
