@@ -150,5 +150,24 @@ print(동물.isSuperset(of:새)) //동물은 새의 전체집합인가 :true
 /**
     {
       컬렉션에서 임의의 요소 추출과 뒤섞기
+      스위프트 4.2부터 컬렉션에서 임의의 요소를 추출하는 randomElement() 메소드와 컬렉션의 요소를 임의로 뒤섞는 shuffle()이 추가됐다. 또, 자신의 요소는 그대루 두고 새로운 컬렉션에 순서를 섞어 반환하는 shuffled() 메소드도 추가됐다.
     }
 */
+var array: [Int] = [0,1,2,3,4];
+var set:Set<Int> = [0,1,2,3,4];
+var dictionary: [String:Int] = ["a":1, "b":2, "c":3]
+var string:String = "string"
+
+print(array.randomElement()); //임의의 요소
+print(array.shuffled()); //뒤죽박죽 배열
+print(array)
+array.shuffle();
+print(array)//뒤죽박죽
+
+print(set.shuffled()); //세트를 뒤섞으면 배열로 반환한다.
+//set.shuffle() //세트는 순서가 없기 때문에 스스로 뒤섞을 수 없다. (오류)
+print(dictionary.shuffled()); //딕셔너리를 뒤섞으면 키,값으로 이뤄진 튜플의 배열로 반환한다.
+print(string.shuffled()) //string도 컬렉션이다.
+
+
+
