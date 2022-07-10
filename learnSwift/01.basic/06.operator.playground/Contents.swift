@@ -296,5 +296,124 @@ print(resultString) //YJ YJ
 
 /**
     14. 후위 연산자 정의와 구현
+ 
+ 이번에는 후위 연산자를 사용하는 방법을 살펴볼 것이다. 사용자 정의 전위 연산자를 구현한 것과 다르지 않다.
 */
+ postfix operator **
+postfix func ** (value: Int)-> Int{
+    return value + 10;
+}
 
+let fivePiece: Int = 5;
+let fivePlusTen: Int = five**;
+print(fivePlusTen); //15
+
+/**
+ 하나의 피연산자에 전위 연산과 후위 연산을 한 줄에 사용하게 되면 후위 연산을 먼저 수행한다. 아래의 에시를 보면 이를 알 수 있다.
+ */
+
+let preAndPost : Int = **five**
+print(preAndPost)
+
+/**
+    15. 중위 연산자 정의와 구현
+ 중위 연산자 정의도 전위 연산자나 후위 연산자 정의와 크게 다르지 않다. 다만 중위 연산자는 우선순위 그룹을 명시해줄 수 있다. 연산자 우선순위 그룹은 precedencegrouop 뒤에 그룹 이름을 써서 정의할 수 있다.
+ 
+    precedencegroup [우선 순위 그룹 이름] {
+        higerThan: [더 낮은 우선순위 그룹 이름]
+        lowerThan: [더 높은 순위 그룹 이름]
+        associativity: [결합 방향 (left/ right/ none)
+        assignment: 할당 방향(true/ false)
+    }
+ 
+ 연산자 우선순위 그룹은 중위 연산자에서만 사용된다. 전위 연산자 및 후위 연산자는 결합 방향 및 우선순위를 지정하지 않는다. 대신, 앞서 설명했든 하나의 피연산자에 전위 연산과 후위 연산을 한 줄에 사용하게 되면 후위 연산을 먼저 수행한다. 더 낮은 우선순위 그룹 이름을 higherThan과 더 높은 우선순위 그룹 이름을 넣을 수 있는 lowertThan에 들어갈 수 있는 그룹 이름을 통해 기존의 우선순위 그룹과 새로 만들어줄 우선순위 그룹과의 상하관계를 설명해줄 수 있다. lowerThan 속성에는 현재 모듈 밖에 정의된 우선순위 그룹만 명시할 수 있다.
+ 
+ 결합 방향을 명시해줄 수 있는 associativity에는 left, right, none을 지정해줄 수 있다. 만약 associativity를 빼놓고 연산자 우선순위 그룹을 정의하면 기본적으로 none이 설정된다. 결합 방향이 없는 연산자는 여러 번 연달아 사용할 수 없다. 결합 방향이 있는 더하기(+) 빼기(-) 등의 연산자는 1 + 2 + 3과 같이 연산해줄 수 있ek. 그렇지만 결합 방향이 없는 부등호 연산자의 경우에는 연달아 사용해줄 수 없다.
+ 
+ 연산자 우선순위 그룹의 assignment는 옵셔널 체이닝과 관련된 사항이다. 연산자가 옵셔널 체이닝을 포함한 연산에 포함되어 있을 경우 연산자의 우선순위를 지정한다. true로 설정해주면 해당 우선순위 그룹에 해당 우선순위 그룹에 해당하는 연산자는 옵셔널 체이닝을 할 때 표준 라이브러리의 할당 연산자와 동일한 결합방향 규칙을 사용한다. 즉, 스위프트의 할당 연산자는 오른쪽 결합을 사용하므로 assignment를 true로 설정하면 연산자를 사용하여 옵셔널 체이닝을 할 때 오른쪽부터 체이닝이 시작된다는 뜻이다. 그렇지 않고 false를 설정하거나 assignment를 따로 명시해주지 않으면 해당 우선순위 그룹에 해당하는 연산자는 할당을 하지 않는 연산자와 같은 옵셔널 체이닝 규칙을 따른다. 즉, 연산자에 옵셔널 체이닝 기능이 포함되어 있다면 왼쪽부터 옵셔널 체이닝을 하게 된다.
+ 
+ 만약, 중위 연산자를 정의할 때 우선순위 그룹을 명시해주지 않는다면 우선순위가 가장 높은 DefaultPrecedence 그룹을 우선순위 그룹으로 갖게 된다.
+ */
+
+infix operator ** : MultiplicationPrecedence
+/**
+    문자열과 문자열 사이에 ** 연산자를 사용하면 뒤에 오는 문자열이 앞의 문자열 안에 속해있는지 확인하는 연산을 실행하도록 구현하겠다. 중위 연산자 구현함수는 따로 키워드를 추가하지 않는다.
+ */
+
+// String 타입의 contains(_:) 메소드를 사용하기 위해서 Foundation 프로엠 워크를 임포트한다.
+import Foundation
+func ** (lhs:String, rhs:String)->Bool {
+    return lhs.contains(rhs)
+}
+
+let helloYj: String = "Hello YJ"
+let yjs: String = "YJ"
+let isContainYJ: Bool = helloYj **  yjs //true
+
+/**
+    추가로 우리가 정의한 데이터 타입(클래스, 구조체 등)에서 유용하게 사용할 수 있는 연산자도 새로 정의하거나 중복 정의할 수 있음을 알 수 있다.
+ 
+ */
+class Car {
+    var modelYear: Int? //연식
+    var modelName: String?//모델 이름
+}
+
+struct SmartPhone{
+    var company:String? //제조사
+    var model:String? //모델
+}
+
+//Car 클래스의 인스턴스끼리 == 연산했을 때 modelName이 같다면 true를 반환
+func ==(lhs:Car, rhs: Car)->{
+    return lhs.modelName == rhs.modelName
+}
+
+//SmartPhone의 구조체 인스턴스끼리 == 연산했을 떄 model이 같다면 true를 반환
+func ==(lhs:SmartPhone, rhs:SmartPhone)->Bool{
+    return lhs.model == rhs.model
+}
+
+let myCar = Car();
+myCar.modelName = "S"
+
+let yourCar = Car();
+yourCar.modelName = "S"
+
+var myPhone = SmartPhone()
+myPhone.model="SE"
+
+var yourPhone = SmartPhone()
+yourCar.modelName="6"
+
+
+print(myCar == yourCar) //true
+print(myPhone == yourPhone) //false
+
+/**
+ 위와 같은 사례는 전역으로 연산자가 정의된 것이다. 그러나 특정 타입에 국한된 연산자 함수라면 그 타입 내부에 구현되는 것이 읽고 이해하기에 더욱 쉽다. 그래서 타입 내부에 타입 메소드로 구현할 수도 있다.
+ */
+
+class Pad{
+    var modelYear: Int?
+    var modelName: String?
+    
+//    Pad 클래스의 인스턴스끼리 == 연산했을 때 modelName이 같다면 true
+    static func == (lhs: Pad, rhs: Pad)->Bool{
+        return lhs.modelName == rhs.modelName
+    }
+}
+
+struct Pod{
+    var modelYear: Int?
+    var model: String?
+    
+    //Pod 구조체의 인스턴스끼리 == 연산했을 때 model이 같다면 true를 반환
+    static func == (lhs:Pod, rhs:Pod)->Bool{
+        return lhs.model == rhs.model
+    }
+}
+
+/**
+ 타입 메소드로 구현한 사용자 정의 연산자는 각 타입의 익스텐션으로 구현해도 된다.
+ */
