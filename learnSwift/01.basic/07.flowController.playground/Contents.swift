@@ -235,5 +235,78 @@ switch (bever) {
         print("??")
 }
 /**
-    @unknown을 붙이면 해당 switch 구문이 모든 case에 대응하지 않는다는 사실을 다시 상기할 수 있다. 이처럼 논리적인 오류에 대해 도움을 받을 수 있는 unknown 속성을 부여할 수 있는 case는 case_ 혹은 default case 뿐이다. 또, unknown 속성을 부여한 case는 switch 구문의 가장 마지막 case로 작성해야한다. 
+ @unknown을 붙이면 해당 switch 구문이 모든 case에 대응하지 않는다는 사실을 다시 상기할 수 있다. 이처럼 논리적인 오류에 대해 도움을 받을 수 있는 unknown 속성을 부여할 수 있는 case는 case_ 혹은 default case 뿐이다. 또, unknown 속성을 부여한 case는 switch 구문의 가장 마지막 case로 작성해야한다.
+
+ 
+   2. 반복문
+ 조건에 따라 실행되어야 하는 명령어를 조건문을 통해서 분기한다면, 같거나 비슷한 명령을 반복 실행할 때는 반복문만큼 중요한 것이 없다. 특히나 배열과 같은 시퀀스(sequence), 순서가 있는 데이터는 반복문으로 더욱 편리하게 처리할 수 있다.
+ 
+ 스위프트의 반복문은 기존 프로그래밍 언어의 반복문과 크게 다르지 않다. 다만 전통적인 C 스타일의 for 구문이 사라졌다는 것과 조건에 괄호를 생략할 수 있다는 정도가 다를 것이다. 또한 do-while 구문은 repeat-while로 명칭만 변경되어 있다.
+
+ ***for 조건에 () 쓰면 컴파일 에러
+ 
+ 
+  > for - in 구문
+ for-in 반복 구문은 반복적인 데이터나 시퀀스를 다룰 때 많이 사용한다.
+ 
+     for [임시 상수] in [시퀀스 아이템] {
+            // 실행 코드 //
+     }
+*/
+
+for  i in 0...2 {
+    print(i);
+    
+}
+
+print("\n")
+
+for i in 0...5{
+    if(i.isMultiple(of: 2)){
+        print("\(i) == 짝수");
+        continue; //countinue를 사용하면 키워드를 사용하면 바로 다음 시퀀스로 넘어간다.
+    }
+    print("\(i) == 홀수")
+}
+
+let helloSwift: String = "Hello Swift!"
+for char in helloSwift{
+    print(char)
+}
+
+print("\n")
+
+var result: Int = 1;
+ 
+// 시퀀스에 해당하는 값이 필요 없다면 와일드카드 식별자(_)를 사용하면 된다.
+for _ in 1...3{
+    result *= 10;
+}
+
+print("10의 3제곱은 \(result)이다.")
+
+/**
+ for-in 구문의 스위프트의 기본 컬렉션 타입에서도 유용하게 사용할 수 있다. 딕셔너리를 넘겨받는 값의 타입이 튜플로 지정되어 넘어온다.
+ */
+//Dictionary
+let friends: [String: Int] = ["Jay": 35, "Joe": 29, "Jenny":31]
+
+for tuple in friends {
+    print(tuple)
+}
+print("\n")
+let 주소: [String: String] = ["도":"충청북도", "시군구":"청주시 청원구", "동읍면": "율량동"]
+
+for (키, 값) in 주소 {
+    print("\(키) : \(값)")
+}
+print("\n")
+//Set
+let 지역번호: Set<String> = ["02", "031", "032", "033", "041", "042", "043", "051", "052", "053", "054", "055", "061", "062", "063", "064"]
+
+for 번호 in 지역번호{
+    print(번호)
+}
+/**
+ for-in 구문을 사용해서 반복처리를 쉽게 할 수 있다. 하지만 스위프트에 좀 더 익숙해 져서 옵셔널, 클로저 등을 익히고 함수형 패러다임을 이해하면 for-in 구문보다 map, filter, flatMap 등을 더 만힏 사용하게 될 것이다.
  */
