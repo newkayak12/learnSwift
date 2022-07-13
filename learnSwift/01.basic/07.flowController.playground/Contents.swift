@@ -309,4 +309,58 @@ for 번호 in 지역번호{
 }
 /**
  for-in 구문을 사용해서 반복처리를 쉽게 할 수 있다. 하지만 스위프트에 좀 더 익숙해 져서 옵셔널, 클로저 등을 익히고 함수형 패러다임을 이해하면 for-in 구문보다 map, filter, flatMap 등을 더 만힏 사용하게 될 것이다.
+ 
+ 
+ 
+ 
+    > while 구문
+ while 반복 구문도 다른 프로그래밍 언어의 while과 다르지 않다. 특정 조건(Bool 타입)이 성립하는 한 를록 내부의 코드를 반복해서 실행한다.
+ 
  */
+
+var names:[String] = ["A", "B", "C", "D", "E"];
+while (names.isEmpty == false){
+    print("BYE \(names.removeFirst())")
+}
+
+/**
+ 
+    > repeat-while 구문
+ repeat-while 반복 구문은 다른 프로그래밍 언어의 do-while 구문과 크게 다르지 않다. repeat 블록의 코드를 최초 1회 실행한 후, while 다음의 조건이 성립하면 블록 내부의 코드를 반복 실행한다.
+ */
+names = ["A", "B", "C", "D", "E"];
+repeat{
+    print("BYE \(names.removeFirst())")
+} while (names.isEmpty == false)
+
+
+/**
+    3. 구문 이름표
+ 반복문을 작성하다보면 종종 반목문을 중첩으로 작성하게 된다. 이때 반복무능ㄹ 제어하는 키워드(break, continue 등)이 어떤 범위에 적용되어야 하는지 애매하거나 큰 범위의 반복문을 종료하고 싶은데 작은 범위의 반복문만 종료되는 등 예상치 못한 실수를 할 수도 있다.
+ 그럴 때는 반복문 앞에 이름과 함께 콜론을 붙여 구문의 이름을 지정해주는 구문 이름표를 사용하면 좋다. 이름이 지정된 구문을 제어하고자할 때는 제어 키워드와 구문 이름을 함께 써주면 된다.
+ */
+
+var nums: [Int] = [3,2342,6,3252]
+numbersLoop: for n in nums {
+    if( n > 5 || n < 1){
+        continue numbersLoop;
+    }
+    
+    var count: Int = 0;
+    
+    printLoop: while ( true ){
+        print(n)
+        count += 1
+        
+        if( count == n ){
+            break printLoop
+        }
+    }
+    
+    removeLoop: while ( true ){
+        if ( nums.first != n){
+            break numbersLoop
+        }
+        nums.removeFirst()
+    }
+}
