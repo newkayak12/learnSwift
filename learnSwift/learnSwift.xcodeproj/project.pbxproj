@@ -16,6 +16,7 @@
 		7E1185322874562E0067D937 /* 05.enumeration.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 05.enumeration.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7E11853328746D470067D937 /* 06.operator.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 06.operator.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7E939242287AF5F300A11EA8 /* 07.flowController.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 07.flowController.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		7E99DCAA28804BC50051BF41 /* 08.function.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 08.function.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7EB4E2802871BE8B00D76E7B /* 02.dataType.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 02.dataType.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
 
@@ -48,6 +49,7 @@
 				7E1185322874562E0067D937 /* 05.enumeration.playground */,
 				7E11853328746D470067D937 /* 06.operator.playground */,
 				7E939242287AF5F300A11EA8 /* 07.flowController.playground */,
+				7E99DCAA28804BC50051BF41 /* 08.function.playground */,
 			);
 			path = 01.basic;
 			sourceTree = "<group>";
