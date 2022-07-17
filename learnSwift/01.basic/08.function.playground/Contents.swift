@@ -35,6 +35,7 @@ func introduce(name: String) -> String {
 }
 let introduceJenny: String = introduce(name: "JENNY");
 print(introduceJenny)
+
 /**
     기본 형태는 다른 언어와 비슷하다 그렇지만 생략할 수 있거나 추가 가능한 부분을 살펴보면 스위프트에서 함수를 얼마나 다양하게 정의할 수 있는지 알 수 있다. introduce: 함수에서 볼 수 있듯 return 키워드를 생략할 수 있다. 함수 내부의 코드가 단 한줄의 표현이고, 그 표현의 결과 값이 타입의 함수의 반환 타입과 일치한다면 return을 생략해도 반환이 된다.
         {
@@ -55,6 +56,7 @@ func helloWorld() -> String {
 }
 
 print(helloWorld())
+
 /**
  
    매개변수 여러 개 필요한 함수를 정의할 때는 쉼표 (,)로 매개변수를 구분한다. 주의할 점은 함수를 호출할 떄, 매개변수 이름을 붙여주고 콜론(:)을 적어준 후 전달인자를 보내준다는 점이다. 이렇게 호출 시에 매개변수에 붙이는 이름을 '매개변수 이름'이라고 한다.
@@ -216,17 +218,18 @@ print(numbers[1])
     > 반환이 없는 함수
  함수는 특정 연산을 실행한 후 결과값을 반환한다. 그러나 값의 반환이 굳이 필요하지 않는 함수도 있다. 그럴 때는 반환 값이 없는 함수를 만들어 줄 수 있다. 만약 반환 값이 없는 함수라면 반환 타입을 '없음'을 의미하는 Void로 표기하거나 아예 반환 타입 표현을 생략해도 된다. 즉, 반환 타입이 Void이거나 생략되어 있다면 반환 값이 없는 함수이다.
  */
+
 func sayHelloWorld(){
     print("HELLO WORLD")
 }
 sayHelloWorld()
 
 func sayHelloWorld(from myName: String, to yourName: String){
-    print("HELLO \(name)! I'm \(myName)")
+    print("HELLO \(yourName)! I'm \(myName)")
 }
 sayHelloWorld(from: "YJ", to: "SH")
 
-func sayGoodBye() -> void { //void로 명시해줘도 상관 없다.
+func sayGoodBye() -> Void { //void로 명시해줘도 상관 없다.
     print("GOOD BYE")
 }
 sayGoodBye()
@@ -269,3 +272,43 @@ func addTwoInts(_ a: Int, _ b: Int) -> Int {
 func multiplyTwoInts(_ a: Int, _ b: Int) -> Int {
     return a * b
 }
+
+var mathFunction: CalculateTwoInts = addTwoInts
+print(mathFunction(2,5))
+
+mathFunction = multiplyTwoInts
+print(mathFunction(2,5))
+/**
+ 먼저 두 Int 값을 입력받아 계산 후 Int 값을 돌려주는 형태의 함수를 CalculateTwoInts라는 별칭으로 지었다.
+    {
+        매개변수 타입과 반환 타입
+        함수형 프로그래밍에서 특정 로직에 관여할 함수의 매개변수와 반환 타입은 매우 중요하다. 타입 별칭을 통해 손쉽게 함수를 관리할 수 있으며, 매개변수와 반환 타입은 매우 중요하다. 타입 별칭을 통해 손쉽게 관리할 수 있다.
+    }
+ 
+  그리고 addTwoInts(_:_:)와 multiplyTwoInts(_:_:)라는 간단한 함수 두 개를 만들었다. 두 함수는 변수 mathFunction에 번갈아가면 할당하거나 mathFunction 이름으로 호출할 수도 있다.
+ */
+
+func printMathResult(_ mathFunction: CalculateTwoInts, _ a: Int, _ b: Int){
+    print("Result: \(mathFunction(a,b))")
+}
+
+printMathResult(addTwoInts, 3, 5)
+
+func chooseMathFunction(_ toAdd: Bool) -> CalculateTwoInts {
+    return toAdd ? addTwoInts : multiplyTwoInts
+}
+
+printMathResult(chooseMathFunction(true), 3, 5)
+printMathResult(chooseMathFunction(false), 3, 5)
+
+/**
+    {
+            전달인자 레이블과 함수 타입
+ 
+        전달인자 레이블은 함수 타입의 구성요소가 아니므로 함수 타입을 작성할 떄는 전달인자 레이블을 써줄수 없다.
+        let someFunction: (lhs: Int, rhs: Int) -> Int //X
+        let someFunction: (_ lhs: Int,_ rhs: Int) -> Int //O
+        let someFunction: (Int, Int) -> Int //O
+    }
+ 기존의 C언어 등에서 함수가 일급 객체가 아니었기 때문에 함수의 포인터를 사용해야 했고, 그로 인해 발생하는 다양한 문제가 있었다. 일급 객체가 아닌 기존의 언어의 함수와 스위프트 함수와의 차이가 무엇인지, 어떤 점이 더 좋은지 생각해볼 필요가 있다. 또, 함수가 일급 객체인 경우 어떤 상황에서 유용하게 사용할 수 있을지, 내 프로그램의 어떤 부분에서 쓸 수 있을지 고민해보는 것이 좋다. 
+ */
