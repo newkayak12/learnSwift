@@ -310,5 +310,119 @@ printMathResult(chooseMathFunction(false), 3, 5)
         let someFunction: (_ lhs: Int,_ rhs: Int) -> Int //O
         let someFunction: (Int, Int) -> Int //O
     }
- 기존의 C언어 등에서 함수가 일급 객체가 아니었기 때문에 함수의 포인터를 사용해야 했고, 그로 인해 발생하는 다양한 문제가 있었다. 일급 객체가 아닌 기존의 언어의 함수와 스위프트 함수와의 차이가 무엇인지, 어떤 점이 더 좋은지 생각해볼 필요가 있다. 또, 함수가 일급 객체인 경우 어떤 상황에서 유용하게 사용할 수 있을지, 내 프로그램의 어떤 부분에서 쓸 수 있을지 고민해보는 것이 좋다. 
+ 기존의 C언어 등에서 함수가 일급 객체가 아니었기 때문에 함수의 포인터를 사용해야 했고, 그로 인해 발생하는 다양한 문제가 있었다. 일급 객체가 아닌 기존의 언어의 함수와 스위프트 함수와의 차이가 무엇인지, 어떤 점이 더 좋은지 생각해볼 필요가 있다. 또, 함수가 일급 객체인 경우 어떤 상황에서 유용하게 사용할 수 있을지, 내 프로그램의 어떤 부분에서 쓸 수 있을지 고민해보는 것이 좋다.
+ 
+ 
+ 
+        > 중첩 함수
+
+ 스위프트는 데이터 타입의 중첩이 자유룝다. 예를 들어 열거형 안에 또 하나의 '열거형'이 들어갈 수 있고 클래스 안에 또 다른 '클래스'가 들어올 수 있는 등 다른 프로그래밍 언어에서 생각하지 못했던 패턴을 자유롭게 만들수 있다.
+ 
+ 함수의 중첩은 함수 안에 함수를 넣을 수 있다는 의미인데 우리가 앞서 살펴보았던 함수는 특별한 위치에 속해 있지 않는 한 모두 전역함수이다. 즉, 모듈 어디서든 사용할 수 있는 함수라는 뜻이다. 그러나 함수 안의 함수로 구현된 중첩 함수는 사우이 함수의 몸통 블록 내부에서만 함수를 사용할 수 있다. 물론 중첩 함수의 사용 범위가 해당 함수 안쪽이라고 해서 아예 외부에서 사용할 수 없는 것은 아니다. 함수가 하나의 반환 값으로 사용될 수 있으므로 중첩 함수를 담은 함수가 중첩 함수를 반환하면 밖에서도 사용할 수 있다.
+ 
+     ... -3 , -2, -1, 0, 1, 2, 3 ...
+ 
+ 원점이 0이고 좌로는 음수, 우로는 양수로 이뤄진 보드이다. 특정 위치에서 원점으로 이동하는 함수를 만들고자 한다. 왼쪽으로 한 칸 이동하는 함수와 오른쪽으로 한 칸 이동하는 함수, 둘 중 무엇을 호출해야 하는지 판단하는 함수를 구현해보자
+ */
+
+typealias MoveFunc = (Int) -> Int
+func goRight(_ currentPosition: Int) -> Int{
+    return currentPosition+1;
+}
+
+func goLeft(_ currentPosition: Int) -> Int{
+    return currentPosition-1;
+}
+
+func functionForMove(_ shouldGoLeft: Bool) -> MoveFunc {
+    return shouldGoLeft ? goLeft : goRight;
+}
+
+var position: Int = 3;
+let moveToZero: MoveFunc = functionForMove(position > 0)
+
+print("가자 원점으로")
+while position != 0 {
+    print("\(position)...")
+    position = moveToZero(position)
+}
+print("원점 도착")
+
+/**
+    지금까지 우리가 함수를 구현하던 방식이다. 그런데 왼쪽으로 이동하는 함수와 이동하는 함수와 오른쪽으로 함수는 아주 사소한 기능 차이일 뿐 원점을 찾아가는 목적은 같다. 따라서 굳이 모듈 전역에서 사용할 필요가 없다. 그래서 사용 범위를 한정하고자 함수를 하나의 함수 안쪽으로 배치하여 중첩 함수로 구현하고, 필요할 때만 외부에서 사용할 수 있도록 바꿔보자. 위에서 전역함수로 구현된 goLeft(_:) 함수와 goRight(_:) 함수를 funcionForMove(_:) 함수 안쪽으로 배치하여 중첩 함수로 구현했다.
+ */
+
+typealias MoveFunc2 = (Int) -> Int
+
+
+func functionForMove2(_ shouldGoLeft: Bool) -> MoveFunc2{
+    func goLeft2(_ currentPosition: Int) -> Int{
+        return currentPosition-1;
+    }
+
+    func goRight2(_ currentPosition: Int) -> Int{
+        return currentPosition+1;
+    }
+    
+    return shouldGoLeft ? goLeft2 : goRight2
+}
+
+var position2: Int = -4 //현 위치
+let moveToZero2: MoveFunc2 = functionForMove2(position2 > 0)
+while position2 != 0 {
+    print("\(position2)")
+    position2 = moveToZero2(position2)
+}
+print("원점 도착!")
+/**
+    전역함수가 많은 프로젝트에서는 전역으로 사용이 불필요한 함수의 범위를 조금 더 명확하고 깔끔하게 표현할 수 있다.
+ 
+    
+    > 종료되지 않는 함수
+ 
+ 스위프트에는 종료(return)되지 않는 함수가 있다.
+ 종료되지 않는다는 의미는 정상적으로 끝나지 않는 함수라는 뜻이다. 이를 비반환 함수(Nonreturning function) 또는 비반환 메소드(Nonreturning method)라고 한다. 비반환 함수(메소드)는 정상적으로 끝날수 없는 함수이다. 이 함수를 실행하면 프로세스 동작은 끝났다고 볼 수 있다. 왜 이런 이름을 붙이게 되었을까? 비반환 함수 안에서는 오류를 던진다든가. 중대한 시스템 오류를 보고하는 등의 일을 하고 프로세스를 종료해 버리기 때문이다. 비반환 함수는 어디서든 호출이 가능하고 guard 구문의 else 블록에서도 호출할 수 있다. 비반환 메소드는 재정의 할 수 있지만 비반환 타입이라는 것은 변경할 수 없다.
+ 
+ 비반환 함수(메소드)는 반환 타입을 Never라고 명시해주면 된다.
+ */
+func crashAndBurn() -> Never {
+    fatalError("SomeThing very, very bad happened")
+}
+
+crashAndBurn();
+
+func someFunction(isAllIsWell: Bool){
+    guard isAllIsWell else {
+        print("마을에 도둑이 들었습니다.")
+        crashAndBurn();
+    }
+    print("All is well")
+}
+
+someFunction(isAllIsWell: true)
+someFunction(isAllIsWell: false)
+
+/**
+ Never 타입이 스위프트 표준 라이브러리에서 사용되는 대표적인 예로 fatalError 함수가 있다. Never 타입이 스위프트 표준 라이브러리에서 사용되는 대표적인 예로는 fatalError 함수가 있다.
+ 
+ 
+    > 반환 값을 무시할 수 있는 함수
+ 가끔 함수의 반환 값이 필요하지 않은 경우도 있다. 프로그래머가 의도적으로 함수의 반환 값을 사용하지 않을 경우 컴파일러가 함수의 결과 값ㄷ을 사용하지 않았다는 경고를 보낼 때도 있다. 이런 경우 함수의 반환 값을 무시해도 된다는 @discardableResult 선언 속성을 사용하면 된다.
+*/
+
+func say(_ something: String) -> String {
+    print(something)
+    return something;
+}
+
+@discardableResult
+func discarableResult(_ something: String) -> {
+    print(something)
+    return something;
+}
+
+say("hello")
+discarableResult("hello")
+/**
+    @discarableResult 선언 속성은 스위프트 표준 라이브러리 메소드에서도 종종 사용한다. 어떤 상황에 해당 속성을 사용하는지 라브러리에 구현된 함수나 메소드를 살펴보면 많은 힌트를 얻을 것이다.
  */
