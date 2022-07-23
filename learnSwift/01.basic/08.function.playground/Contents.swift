@@ -416,7 +416,7 @@ func say(_ something: String) -> String {
 }
 
 @discardableResult
-func discarableResult(_ something: String) -> {
+func discarableResult(_ something: String) -> String{
     print(something)
     return something;
 }
