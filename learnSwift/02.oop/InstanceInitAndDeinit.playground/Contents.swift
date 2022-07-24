@@ -166,6 +166,237 @@ let size: Size = Size(width: 50.0, height: 50.0)
  값 타입에서 이니셜라이저가 아른 이니셜라이저를 호출하려면 self.init을 사용한다. 당연히 self.init은 이니셜라이저 안에서만 사용할 수 있는데, self.init을 사용한다는 것 자체가 사용자 정의 이니셜라이저를 정의하고 있다는 뜻이다. 그런데 사용자 정의 이니셜라이저를 정의하면 기본 이니셜라이저와 멤버와이즈 이니셜라이저를 사용할 수 없다고 했다. 따라서 초기화 위임을 하려면 최소 두 개 이상의 사용자 정의 이니셜라이저를 정의해야한다.
     {
             기본 이니셜라이저를 지키고 싶다면
-        사용자 정의 이니셜라이저를 정의할 때도 기본 이니셜라이저나 멤버 와잉즈 이니셜라이저를 사용하고 싶으면 잉ㄱ스텐션을 이용해서 사용자 정의 이니셜라이저를 구현하면 된다. 
+        사용자 정의 이니셜라이저를 정의할 때도 기본 이니셜라이저나 멤버 와잉즈 이니셜라이저를 사용하고 싶으면 잉ㄱ스텐션을 이용해서 사용자 정의 이니셜라이저를 구현하면 된다.
     }
+ */
+enum Student {
+    case elementary, middle, high
+    case none
+    //사용자 정의 이니셜라이저가 있는 경우, init 메소드를 구현해주어야 기본 이니셜라이저를 사용할 수 있다.
+    
+    init(){
+        self = .none
+    }
+    init(koreanAge: Int){
+        switch koreanAge {
+            case 8...13:
+                self = .elementary
+            case 14...16:
+                self = .middle
+            case 17...19:
+                self = .high
+            default:
+                self = .none
+        }
+    }
+    init(bornAt: Int, currentYear: Int){
+        //두 번쨰 사용자 이니셜라이저
+        self.init(koreanAge: currentYear - (bornAt + 1))
+    }
+}
+
+var younger: Student = Student(koreanAge: 16)
+print(younger)
+
+younger = Student(bornAt: 1998, currentYear: 2022)
+print(younger)
+/**
+ 위의 열거형은 두 개의 사용자 정의 이니셜라이저가 있다. 첫 번쨰 사용자 정의 이니셜라이저는 나이를 전달받아 나이에 맞는 학교를 case로 구분한 이니셜라이저를 초기화 하고, 두 번째 사용자 정의 이니셜라이저는 태어난 해와 현재 연도를 전달받아 나이로 계산한 후 첫 번쨰 이니셜라이저에 초기화를 위임한다. 이렇게 초기화 위임 방법을 사용하면 코드를 중복으로 쓰지 않고 효육적으로 여려 케이스의 이니셜라이저를 만들 수 있다.
+ 
+ 
+    
+    1.7 실패 가능한 이니셜라이저
+ 이니셜라이저를 통해 인스턴스를 초기화할 수 없느 여러 가지 예외 상황이 있다. 대표적으로 이니셜라이저의 전달인자로 잘못된 값이나 적절치 못한 값이 전달되었을 때, 이니셜라이저는 인스턴스 초기화에 실패할 수 있다. 그 외에도 여러 이유로 인스턴스 초기화에 실패할 수 있다.
+ 이니셜라이저를 정의할 떄 이런 실패 가능성을 염두에 두기도 하는데, 이렇게 실패 가능성을 내포한 이니셜라이저를 실패 가능한 이니셜라이저(Failable Initializer)라고 부른다. 실패 가능한 이니셜라이저는 클래스, 구조체, 열거형 등에 모두 정의할 수 있다. 실패 가능한 이니셜라이저는 실패했을 때 nil을 반환해주므로 반환 타입이 옵셔널로 지정된다. 따라서 실패 가능한 이니셜라이저는 init 대신에 init? 키워드를 사용한다.
+    
+    {
+            이니셜라이저의 매개변수
+        실패하지 않는 이니셜라이저와 실패 가능한 이니셜라이저를 같은 이름과 같은 매개변수 타입을 갖도록 정의할 수 없다. 실패 가능한 이니셜라이저는 실제로 특정 값을 반환하지 않는다. 초기화를 실패했을 떄는 return  nil을 반대로 초기화에 성공했을 떄는 return을 적어 초기화의 성공과 실패를 표현할 뿐이다. 실제로 값을 반환하지는 않는다.
+ 
+    }
+ 
+ 아래 예시의 Person3 클래스는 이름, 나이가 잘못 입력되면 실패할 수도 있다. 실패 가능한 이니셜라이저를 사용하면 잘못된 전달인자를 전달받았을 떄 초기화 하지 않을 수 있다.
+ 
+ */
+class Person3{
+    let name: String;
+    var age: Int?
+    
+    init?(name: String){
+        if(name.isEmpty){
+            return nil
+        }
+        self.name = name;
+    }
+    init?(name: String, age: Int){
+        if name.isEmpty || age < 0 {
+            return nil;
+        }
+        self.name = name
+        self.age = age
+    }
+}
+let failInit: Person3? = Person3(name: "yj", age: 99)
+if let person: Person3 = failInit {
+    print(person.name)
+} else  {
+    print("Person wasn't init")
+}
+
+
+let chope: Person3? = Person3(name: "chope", age: -10)
+if let person: Person3 = failInit {
+    print(person.name)
+} else  {
+    print("Person wasn't init")
+}
+
+let eric: Person3? = Person3(name: "", age: 30)
+if let person: Person3 = failInit {
+    print(person.name)
+} else  {
+    print("Person wasn't init")
+}
+/**
+실패 가능한 이니셜라이저는 구조체와 클래스에서도 유용하지만 특히 열거형에서 유용하게 사용할 수 있다. 특정 case에 맞지 않는 값이 들어오면 생성에 실패할 수 있다. 혹은 rawValue로 초기화할 때, 잘못된 rawValue가 전달되어 들어온다면 열거형 인스턴스를 생성하지 못할 수 있다. 따라서 rawValue를 통한 이니셜라이저는 기본저긍로 실패 가능한 이니셜라이저로 제공된다.
+ */
+
+enum Student2: String{
+    case elementary = "초등학생", middle = "중학생", high = "고등학생"
+    init?(koreanAge: Int){
+        switch koreanAge {
+            case 8...13:
+                self = .elementary
+            case 14...16:
+                self = .middle
+            case 17...19:
+                self = .high
+            default:
+                return nil
+        }
+    }
+    init?(bornAt: Int, currentYear: Int){
+        self.init(koreanAge: currentYear - bornAt + 1)
+    }
+}
+
+var younger2: Student2? = Student2(koreanAge: 21)
+print(younger2)
+
+younger2 = Student2(bornAt: 1999, currentYear: 2022)
+print(younger2)
+
+younger2 = Student2(rawValue: "대학생")
+print(younger2)
+
+younger2 = Student2(rawValue: "고등학생")
+print(younger2)
+
+/**
+    1.8 함수를 사용한 프로퍼티 기본값 설정
+ 만약 사용자 정의 연산을 통해 저장 프로퍼티 기본값을 설정하고자 한다면 클로저나 함수를 사용하여 프로퍼티 기본값을 제공할 수 있다. 인스턴스를 초기화할 때 함수나 클로저가 호출되면서 연산 결과값을 프로퍼티 기본값으로 제공해준다. 그렇기 때문에 크로저나 함수의 반환 타입은 프로퍼티의 타입과 일치해야 한다.
+ 
+ 만약 프로퍼티 기본값을 설정해주기 위해서 클로저를 사용한다면 클로저가 실행되는 시점은 초기화할 때 인스턴스의 다른 프로퍼티 값이 설정되기 전이라는 것도 명심해야한다. 즉, 클로저 내부에는 인스턴스의 다른 프로퍼티를 사용하여 연산할 수 없다는 것이다. 다른 프로퍼티에 기본 값이 있다고 해도 안된다. 또한, 클로저 내부의 self 프로퍼티도 사용할 수 없으며, 인스턴스 메소드를 호출할 수도 없다.
+ 
+
+class SomeClass {
+    let someProeprty: SomeType = {
+        //새로운 인스턴스를 생성하고 사용자 정의 연산을 통한 후 반환해준다.
+        //반환되는 값의 타입은 SomeType과 같은 타입이어야 한다.
+        return someValue
+    }()
+}
+
+ 
+ 클로저 뒤에 소괄호가 붙은 이유는 클로저를 실행하기 위해서이다. 클로저 뒤에 소괄호가 붙어 클로저를 실행한 결과 값은 프로퍼티의 기본 값이 된다. 만약 소괄호가 없다면 프로퍼티의 기본값은 클로저 그 자체가 된다.
+ */
+
+//클로저를 통한 프로퍼티 기본 값 설정
+struct Students {
+    var name: String?
+    var number: Int?
+}
+
+class SchoolClass {
+    var students: [Students] = {
+        var arr: [Students] = [Students]()
+        for num in 1...15{
+            var student: Students = Students(name: nil, number: num)
+            arr.append(student)
+        }
+        return arr
+    }()
+}
+
+let myClass: SchoolClass = SchoolClass()
+print(myClass.students.count)
+/**
+ students 프로퍼티는 Student 구조체의 인스턴스를 요소로 갖는 Array 타입이다. SchoolClass 클래스의 인스턴스를 초기화하면 students 프로퍼티의 기본값을 제공하기 위해서 클로저가 동작하고 1번부터 15번까지 학생을 생성하여 배열에 할당한다. myClass 인스턴스는 생성되자마자 students 프로퍼티에 15명의 학생이 있는 상태가 되는 것이다.
+ 
+    {
+            iOS에서의 활용
+        스위프트 언어와 크게 관련은 없지만 iOS의 UI 등을 구성할 떄 UI 컴포넌트를 클래스의  프로퍼티로 구현하고, UI 컴포넌트의 생성과 동시에 컴포넌트의 프로퍼티를 기본적으로 설정할 떄 유용하게 사용할 수 있따.
+    }
+ 
+ 
+ 
+ 
+    2. 인스턴스 소멸
+ 클래스의 인스턴스는 디이니셜라이저(Deinitializer)를 구현할 수 있다. 디이니셜라이저는 이니셜라이저와 반대 역할을 한다. 즉, 메모리에서 해제되기 직전 클래스 인스턴스와 관련하여 원하는 정리 작업을 구현할 수 있다. 디이니셜라이저는 클래스의 인스턴스가 메모리에서 소멸되기 바로 직전에 호출된다. deinit 키워드를 사용하여 디이니셜라이저를 구현하면 자동으로 호출된다.
+ 
+ 디이니셜라이저는 클래스의 인스턴스에만 구현할 수 있다.
+ 
+ 스위프트는 인스턴스가 더 이상 필요하지 않으면 자동으로 메모리에서 소멸시킨다. 인스턴스 대부분은 소멸시킬 때 디 이니셜라이저를 사용해 별도의 메모리 관리 작업을 할 필요는 없다. 그렇지만 예를 들어 인스턴스 내부에서 파일을 불러와 열어보는 등의 외부 자원을 사용했다면 인스턴스를 소멸하기 직전에 ㅏ일을 다시 저장하고 닫아주는 등의 부가작업을 해야한다. 또는 인스턴스를 메모리에서 소멸하기 직전에 인스턴스에 저장되어 있던 데이터를 디스크에 파일로 저장해줘야 하는 경우도 있을 수 있다 .그런 경우에 디이니셜라이저는 굉장히 유용하게 사용할 수 있다.
+ 
+ 클래스에는 디이니셜아이저를 단 하나만 구현할 수 있다. 디이니셜라이저는 이니셜라이저와는 다르게 매개변수를 갖지 않으며, 소괄호도 적어주지 않는다. 또, 자동으로 호출되기 때문에 별도의 코드로 호출할 수도 없다.
+ 
+ 디이니셜라이저는 인스턴스를 소멸하기 직전에 호출되므로 인스턴스의 모든 프로퍼티에 접근할 수 있으며, 프로퍼티의 값을 변경할 수도 있다.
+ 
+ class SomeClass{
+    deinit{
+            print("deinit")
+    }
+ }
+ 
+ var instance: SomeClass? = SomeClass()
+ instance = nil // deinit
+ */
+
+class FileManger{
+    var fileName: String
+    
+    init(fileName: String){
+        self.fileName = fileName
+    }
+    func openFile(){
+        print("open File : \(self.fileName)")
+    }
+    func modifyFile(){
+        print("modify File : \(self.fileName)")
+    }
+    func writeFile(){
+        print("write File : \(self.fileName)")
+    }
+    func claseFile(){
+        print("close File : \(self.fileName)")
+    }
+    
+    deinit {
+        print("deinit")
+        self.writeFile()
+        self.claseFile()
+    }
+}
+
+
+var fileManager: FileManger? = FileManger(fileName: "abc.txt")
+
+if let manger: FileManger = fileManager {
+    manger.openFile()
+    manger.modifyFile()
+}
+
+fileManager =  nil;
+/**
+ 위 예시는 디스크의 파일을 불러와서 사용하는 FileManager 클래스이다. FileManager의 인스턴스가 파일을 불러와 사용하며, 인스턴스의 사용이 끝난 후에는 파일을 변경사항을 저장하고 다시 닫아야 메모리에서 파일이 해제되기 때문에 인스턴스가 메모리에서 해제되기 직전에 파일도 닫아주는 작업을한다. 디이니셜라이저를 잘 활용하면 메모리 관리 측면 외에도 프로그래머가 설계한 로직에 따라 인스턴스가 메모리에서 해제되기 직전에 적절할 작업을 하도록 할 수 있다. 
  */
