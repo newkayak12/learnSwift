@@ -227,7 +227,7 @@ func appendClosure(closure: @escaping VoidVoidClosure){
 func functionWithNonEscapingClosure(closure: VoidVoidClosure){
     closure()
 }
-func functionWithEscapingClosure(completionHandler: @escaping VoidVoidClosure) -> VoidVoidClosure{
+func functionWithEscapingClosure(completionHandler: @escaping VoidVoidClosure) -> VoidVoidClosure {
     return completionHandler
 }
 
@@ -248,9 +248,305 @@ let instance: SomeClass = SomeClass()
 instance.runNoEscapeClosure()
 print(instance.x)
 
-let returnedClosure: VoidVoidClosure = instance.runEscapingClosure()
-returnedClosure()
+let returnedClosure2: VoidVoidClosure = instance.runEscapingClosure()
+returnedClosure2()
 print(instance.x)
 /**
- 비탈출 클로저에서는 인스턴스의 프로퍼티인 x를 사용하기 위해 self 키워드를 생략해도 무관했지만, 탈출하는 클로저에서는 값 획득을 하기 위해 self 키워드를 사용해서 프로퍼티에 접근해야한다. 
+ 비탈출 클로저에서는 인스턴스의 프로퍼티인 x를 사용하기 위해 self 키워드를 생략해도 무관했지만, 탈출하는 클로저에서는 값 획득을 하기 위해 self 키워드를 사용해서 프로퍼티에 접근해야한다.
+ 
+ 
+ 
+ 
+ 
+    6.1 withoutActuallyEscaping
+ 
+ 
+ 비탈출 클로저나 탈출 클로저와 관련된 여러 가지 상황 중 한 가지 애매한 경우가 있다. 비탈출 클로저로 전달한 클로저가 탈출 클로저인 척 해야하는 경우이다.
+ 실제로는 탈출하지 않는데 다른 함수에서 탈출 클로저를 요구하는 상황에 해당한다. 아래에서 구현한 함수 hasElements(in: match:)는 in 매개변수로 검사할 배열을 전달받으며, match라는 매개변수로 검사를 실행할 클로저를 받아들인다.
+ 
+ hasElements(in: match:) 함수는 @escaping 키워드가 없으므로 비탈출 클로저를 전달받게 된다. 그리고 내부에서 배열의 lazy 컬렉션에 있는 filter 메소드의 매개변수로 비탈출 클로저를 전달한다. 그런데 lazy 컬렉션은 비동기 작업을 할 때 사용하기 때문에 filter 메소드가 요구하는 클로저는 탈출 클로저이다. 그래서 탈출 클로저 자리에 비탈출 클로저를 전달할 수 없다는 오류와 마주하게 된다.
+ 
+ 
+ func hasElements(in array: [Int], match predicate: (Int) -> Bool) -> Bool {
+     return (array.lazy.filter { predicate($0) }.isEmpty == false)
+ }
+ 
+ 그런데 함수전체를 보면, match 클로저를 탈출할 필요가 없다. 이때 해당 클로저를 탈출 클로저인양 사용할 수 있게 돕는 withoutActuallyEscaping(_: do:)함수가 있다.
  */
+let numbers: [Int] = [2, 4, 6, 8]
+let evenNumberPredicate = { (number: Int) -> Bool in return number % 2 == 0}
+let oddNumberPredicate = { (number: Int) -> Bool in return number % 2 == 1}
+
+func hasElemnts(in array: [Int], match predicate: (Int) -> Bool) -> Bool {
+    return withoutActuallyEscaping(predicate, do: { escapablePredicate in
+        return (array.lazy.filter { escapablePredicate($0) }.isEmpty == false)
+    })
+}
+
+let hasEvenNumber = hasElemnts(in: numbers, match: evenNumberPredicate)
+let hasOddNumber = hasElemnts(in: numbers, match: oddNumberPredicate)
+
+print(hasEvenNumber)
+print(hasOddNumber)
+
+
+/**
+        7. 자동 클로저
+ 함수의 전달인자로 전달하는 표현을 자동으로 변환해주는 클로저를 자동 클로저(Auto Closure)라고 한다. 자동 클로저는 전달인자를 갖지 않는다. 자동 클로저는 호출되었을 때 자신이 감싸고 있는 코드의 결과값을 반환한다. 자동 클로저는 함수로 전달하는 클로저를 (소괄호와 중괄호를 겹쳐 써야하는) 어려운 클로저 문법을 사용하지 않고도 클로저로 사용할 수 있도록 문법적 편의를 제공한다.
+ 
+ 스위프트 표준 라이브러리에는 자동 클로저를 호출하는 함수가 구현되어 있어 이를 사용하는 일이 종종있다. 하지만 직접 자동 클로저를 호출하는 함수를 구현하는 일은 흔치 않을 것이다. 예를 들어 스위프트 표준 라이브러리에 구현되어 있는 assert(condition: message: file: line:) 함수는 condition과 message 매개변수가 자동 클로저이다. condition 매개변수는 디버그용 빌드에서만 실행되고, message 매개변수는 condition 매개변수가 false일 때만 실행된다.
+ 
+ 자동 클로저는 클로저가 호출되기 전까지 클로저 내부의 코드가 동작하지 않는다. 따라서 연산을 지연시킬 수 있다. 이 과정은 연산에 자원을 많이 소모한다거나 부작용이 우려될 때 유용하게 사용할 수 있다. 왜냐하면 코드의 실행을 제어하기 좋기 때문이다.
+ */
+var customersInLine: [String] = ["BG", "DK", "HM", "LS"]
+print(customersInLine.count)
+
+//클로저를 만들어두면 클로저 내부의 코드를 미리 실행하지 않고 가지고만 있다.
+let customerProvider: () -> String = {
+    return customersInLine.removeFirst()
+}
+
+print(customersInLine.count)
+
+//실제로 실행한다.
+print("now serving \(customerProvider())!")
+print(customersInLine.count)
+/**
+    위에서 customerProvider 상수에 저장해둔 클로저는 하나의 명령문 묶음으로 볼 수 있다. Array의 removeFirst() 메소드는 자신의 첫 번쨰 요소를 제거하면서 그 요소를 반환해주는 메소드이다. 그래서 customerProvider()를 선언했지만 바로 아래서 호출한 print(customerInLine.count)에서는 클로저 내부의 연산이 반영되지 않으며, 클로저가 실제로 실행되기 전까지 removeFirst() 메소드의 연산을 실행하지도 않는다. 그 뒤에 실제로 클로저를 실행하게 되면 그때서야 연산을 실행하게 된다. 클로저가 영영 호출되지 않는다면 내부의 코드도 실행되지 않기 때문에 해당 연산은 실행되지 않는다.
+ */
+//함수의 전달인자로 전달하는 클로저
+var customerInLine: [String] = ["AA","BB","CC","DD","EE"]
+func serveCustomer(_ customProvider: () -> String){
+    print("NOW SERVING \(customProvider())")
+}
+
+serveCustomer({ customerInLine.removeFirst() })
+
+/**
+    우리가 이제껏 봐왔던 모양과 다르지 않다. 함수의 전달인자로 직접 클로저를 작성하여 전달해줬다. 코드 serveCusomer(_:) 함수는 클로저를 매개변수로 전달받고 있다.
+ 
+    {
+            암시적 반환 표현
+        위 예시에서는 클로저 내부에서 return을 사용하지 않아도 암시적으로 반환된다.
+    }
+ 
+    위 예시를 아래와 같이 자동 클로저로 표현할 수 있다.
+ */
+func autoServeCustomer(_ cusomterProvider: @autoclosure () -> String){ print("Now Serving \(cusomterProvider())")}
+autoServeCustomer(customerInLine.removeFirst()) //Now Serving BB
+/**
+    위 예시는 기존의 serveCustomer(_:) 함수와 동일한 역할을 하지만 매개변수에 @autoClosure속정을 주었기 때문에 자동 클로저 기능을 사용한다. 자동 클로저 속성을 부여한 매개변수는 클로저 대신에 customerInLine.removeFirst() 코드의 실행 결과인 String 타입의 문자열을 전달인자로 받게 된다. String 타입의 값이 자동 클로저 매개변수에 전달되면 String 값을 매개변수가 없는 String 값을 반환하는 클로저로 변환해준다. String 타입의 값을 전달 받는 이유는 자동 클로저의 반환 타입이 String이기 때문이다. 자동 클로저는 전달인자를 갖지 않기 떄문에 반환 타입의 값이 자동 클로저의 매개변수로 전달되면 이를 클로저로 바꿔줄 것이다. 이렇게 String 값으로 전달된 전달인자가 자동으로 클로저로 변환되기 때문에 자동 클로저라고 부른다.
+ 
+    자동 클로저를 사용하면 기존의 사용 방법처럼 클로저를 전달인자로 넘겨줄 수 없다.
+ 
+            * 자동 클로저의 과도한 사용
+        자동 클로저의 과도한 사용은 코드를 이해하기 어렵게 만들 가능성이 크므로 정신건강에 매우 해롭다. 만약, 자동 클로저를 사용하고자 한다면 함수 이름 또는 매개변수 이름 등은 자동클로저를 사용한다는 명확한 의미를 전달할 수 있는 이름으로 명명하는 것이 좋다.
+ 
+    기본적으로 @autoclosure 속성은 @noescape 속성을 포함한다. 즉, @autoclosure 속성을 사용하면 @noescape 속성도 부여됨을 암시하는 것이다. 만약 자동 클로저를 탈출하는 클로저로 사용하고 싶다면 @autoclosure 속성 뒤에 @escaping 속성을 덧붙여서 @autoclosure @escaping처럼 사용하면 된다.
+ */
+var cusotomerInLine2: [String] = ["MJ", "inno", "DB"]
+func returnProvier2(_ customerProvider: @autoclosure @escaping () -> String) -> (()-> String){
+    return customerProvider
+}
+
+let cutomerProvider2: () -> String = returnProvier2(cusotomerInLine2.removeFirst())
+print("nowServing \(cutomerProvider2())!")
+/**
+    위 코드를 살펴보면 탈출 가능한 자동 클로저를 매개변수로 받아서 반환 값으로 반환하는 returnProvider2(_:) 함수가 있다. 이 함수의 전달인자로 전달한 후 클로저로 변환된 코드들이 그대로 클로저의 형태로 반환되는 것을 알 수 있다. 즉, 함수를 탈출하는 클로저가 되는 것이다. 그래서 @autoClosure, @escaping 속성을 사용해야한다.
+ 
+    클로저는 앞서 알아본 것처럼 생략할 수 있는 부분이 많다. 그렇기 때문에 경우의 수만 따져보더라도 정말 다양한 표현의 클로저가 만들어질 수 있다. 타입 유추만 사용할 수도 있고, 암시적 반환 표현만 사용할 수 있으며, 단축인자 이름만 사용할 수도 있고, 이를 모두 사용할 수도 사용하지 않을 수도 있다. 그렇기 때문에 다양한 클로저 표현 방법을 알아두고, 이해할 수 있어야한다.
+ 
+ 
+ 
+            14. 옵셔널 체이닝과 빠른 종료
+        
+    1.옵셔널 체이닝
+  옵셔널 체이닝은 옵셔널에 속해 있는 nil일지도 모르는 프로퍼티, 메소드, 서브스크립션 등을 가져오거나 호출할 때 사용할 수 있는 일련의 과정이다. 옵셔널에 값이 있다면 프로퍼티, 메소드, 서브스크립트 등을 호출할 수 있고, 옵셔널이 nil이라면 프로퍼티, 메소드, 서브스크립트 등은 nil을 반환한다. 즉, 옵셔널을 반복 사용하여 옵셔널이 자전거 체인처럼 서로 꼬리를 물고 있는 모양이기 때문에 옵셔널 체이닝이라고 부른다 .자전거 체인에서 한 칸이라고 고장나면 전체가 동작하지 않듯, 옵셔널 체이닝도 하나라도 값이 존자하지 않으면 결과적으로 nil을 반환한다.
+ 
+  옵셔널 체이닝은 프로퍼티나 메소드 또는 서브스크립트를 호출하고 싶은 옵셔널 변수나 상수 뒤에 물음표를 붙여서 표현한다. 옵셔널이 nil이 아니라면 정상적으로 호출될 것이고, nil이라면 결과값으로 nil을 반환할 것이다. 결과적으로 nil이 반환될 가능성이 있으므로 옵셔널 체이닝 반환값은 항상 옵셔널이다.
+ 
+    {
+            느낌표(!)
+        물음표 대신 느낌표(!)를 사용할 수도 있는데 이는 옵셔널을 강제 추출하는 효과가 있다. 만약 강제로 추출하면 런타임 오류가 발생할 수도 있다. 또 다른점은 옵셔널에서 값을 강제 추출 반환하기 때문에 반환 값이 옵셔널이 아니라는 것이다. 100% nil이 아닌 이상 사용하지 않는 것이 좋다.
+    }
+ */
+class Room {
+    var number: Int
+    init(number: Int){
+        self.number = number;
+    }
+}
+
+class Building{
+    var name: String;
+    var room: Room?
+    
+    init(name: String){
+        self.name = name
+    }
+}
+
+struct Address {
+    var province: String
+    var city: String
+    var street: String
+    var building: Building?
+    var detailAddress: String?
+}
+
+class Person {
+    var name: String
+    var address: Address?
+    
+    init(name: String){
+        self.name = name
+    }
+}
+
+/**
+    사람의 정보를 표현하기 위해 Person클래스를 설계했다. Person 클래스는 이름이 있으며, 주소를 옵셔널로 갖는다. 주소 정보는 Address 구조체로 설계했다. 주소에는 시/도, 시/군/구, 도로명이 필수이며, 건물 정보가 있거나 아니면 상세주소를 기재할 수 있도록 옵셔널로 표현했다. 건물 정보는 Building 클래스로 설계했다. 건물은 이름이 있고 호실의 정보를 갖는다.
+ */
+
+let personYJ: Person = Person(name: "YJ")
+/**
+ personYJ가 사는 호실 번호를 알고 싶다. 옵셔널 체이닝과 강제 추출을 사용하여 프로퍼티를 접근해보면 아래와 같다.
+ */
+var personYjRoomViaOptionalChaining: Int? = personYJ.address?.building?.room?.number //nil
+//personYjRoomViaOptionalChaining = personYJ.address!.building!.room!.number //Error
+/**
+    주소, 건물, 호실 정보가 없다. 그렇기 때문에 옵셔널 체이닝 중 nil이 반환된다. 그렇기에 강제 추출 수 런타임 오류가 발생된다.
+    아래의 코드는 옵셔널 바인딩을 사용해서 호실 정보를 가져오는 코드를 표현한 것이다.
+ */
+var roomNumber: Int? = nil
+if let yjAddress: Address = personYJ.address {
+    if let yjBuilding: Building = yjAddress.building {
+        if let yjRoom: Room = yjBuilding.room {
+            roomNumber = yjRoom.number
+        }
+    }
+}
+
+if let number: Int = roomNumber {
+    print(number)
+} else {
+    print("cannot find room number")
+}
+
+/**
+    위의 예시를 옵셔널 체이닝으로 표현하면 훨씬 간단하다.
+ */
+let sh: Person = Person(name: "SH")
+if let roomNumber: Int = sh.address?.building?.room?.number{
+    print(roomNumber)
+} else {
+    print("cannot find room number")
+}
+/**
+    위의 두 코드는 똑같은 결과를 내놓지만, 코드의 간결함과 분량은 꽤 차이가 크다. 흥미로운 점은 옵셔널 체이닝 코드가 옵셔널 바인딩 기능과 결합했다는 점이다. 옵셔널 체이닝과 결과값은 옵셔널 값이기 때문에 옵셔널 바인딩과 결합할 수 있다는 것이다. 즉, sh.address?.building?.room?.number가 nil이 아닌 것을 확인하는 동시에 roomNumber라는 상수로 받아올 수 있다. 만약 중간 값이 nil이면 다음 체인을 확인하지 않고 nil을 반환한다.
+ 
+    이처럼 옵셔널 체이닝을 통해 한 단계뿐만 아니라 여러 단계로 복잡하게 중첩된 옵셔널 프로퍼티나 메소드 등에 매번 nil 체크를 하지 않아도 손쉽게 접근할 수 있다. 또한 옵셔널 체이닝을 통해 값을 받아오기만 하는 것이 아니라 반대로 값을 할당할 수도 있다.
+ */
+sh.address?.building?.room?.number = 55
+print(sh.address?.building?.room?.number) //nil
+
+/**
+    위의 예시는 address도, building도, room도 없다 따라서 옵셔널 체이닝 중 중지된다.
+ */
+
+sh.address = Address(province: "서울특별시", city: "성동구", street: "행당동")
+sh.address?.building = Building(name: "삼영빌딩")
+sh.address?.building?.room = Room(number: 0)
+sh.address?.building?.room?.number = 505
+
+print(sh.address?.building?.room?.number) //Optional(505)
+
+/**
+    위와 같이 옵셔널 체인에 존재하는 프로퍼티를 실제로 할당해준 후 옵셔널 체이닝을 통해 값이 정상적으로 반환되는 것을 확인할 수 있다.
+    옵셔널 체이닝을 통해 메소드와 서브스크립틑 호출도 가능하다. 서브스크립트는 인덱스를 통해 값을 넣고 뺴올 수 있는 기능이다. 먼저, 옵셔널 체이닝을 통한 메소드 호출이다. 호출 방법은 프로퍼티 호출과 동일하다. 만약 메소드의 반환 타입이 옵셔널이라면 이 또한 옵셔널 체인에서 사용 가능하다.
+ */
+struct Address2 {
+    var province: String;
+    var city: String;
+    var street: String;
+    var building: Building?;
+    var detailAddress: String?;
+    
+    init(province: String, city: String, street: String){
+        self.province = province
+        self.city = city
+        self.street = street
+    }
+    
+    func fullAddress() -> String? {
+        var restAddress: String? = nil;
+        
+        if let buildingInfo: Building = self.building {
+            restAddress = buildingInfo.name;
+        } else if let detail = self.detailAddress {
+            restAddress = detail;
+        }
+        
+        if let rest: String = restAddress {
+            var fullAddress: String = self.province;
+            
+            fullAddress += " " + self.city;
+            fullAddress += " " + self.street;
+            fullAddress += " " + rest;
+            
+            return fullAddress
+        } else {
+            return nil
+        }
+    }
+    
+    func printAddress() {
+        if let address: String = self.fullAddress(){
+            print(address)
+        }
+    }
+}
+
+
+class Person2 {
+    var name: String
+    var address: Address2?
+    
+    init(name: String){
+        self.name = name
+    }
+}
+
+let sh2: Person2 = Person2(name: "SH")
+sh2.address = Address2(province: "서울특별시", city: "성동구", street: "행당동")
+sh2.address?.building = Building(name: "삼영빌딩")
+sh2.address?.building?.room = Room(number: 0)
+sh2.address?.building?.room?.number = 505
+
+print(sh2.address?.fullAddress()?.isEmpty)
+print(sh2.address?.fullAddress())
+
+/**
+    서브스크립트를 가장 많이 사용하는 곳은 Array와 Dictionary이다. 옵셔널의 서브스크립트를 사용하고자 할 때는 대괄호보다 앞쪽에 물음표(?)를 표기해야한다. 이는 서브스크립트 이외에도 언제나 옵셔널 체이닝을 사용할 떄의 규칙이다.
+ */
+let optionalArray: [Int]? = [1, 2, 3]
+optionalArray?[1]
+
+var optionalDictionary: [String: [Int]]? = [String: [Int]]()
+optionalDictionary?["numberArray"] = optionalArray;
+optionalDictionary? ["numberArray"]?[2]
+
+
+
+/**
+        2. 빠른 종료
+    빠른 종료(Early Exit)의 행심 키워드는 guard이다. guard 구문은 if 구문과 유사하게 Bool타입의 값으로 동작하는 기능이다. guard 뒤에 따라붙는 코드의 실행 결과 true일 코드가 계속 실행된다. if 구문과는 다르게 guard 구문은 else 구문이 뒤에 따라와야한다. 만약 guard 뒤에 따라오는 Bool 값이 false라면 else 블록 내부 코드를 실행하는데, 이때 else 구문의 블록 내부에는 꼭 자신보다 상위 코드 블록을 종료하는 코드가 들어가게 된다. 그래서 특정 조건에 부합하지 않다는 판단이 되면 재빠르게 코드 블록의 실행을 종료할 수 있다. 이러헥 코드 블록을 종료할 때 return, break, continue, throw등 제어문 전환 명령을 사용한다. 또한 fataError()와 같은 비반환 함수나 메소드를 호출할 수 있다.
+ 
+ 
+             guard Bool [타입 값] else {
+                 예외사항 실행문
+                 제어문 전황 명령어
+             }
+ 
+    guard 구문을 사용하면 if 코드를 훨씬 간결하고 읽기 좋게 구성할 수 있다. if 구문을 사용하면 예외사항을 else 블록으로 처리해야하지만 예외 사항만 처리하고 싶다면 guard 구문을 사용하는 것이 훨씬 간편하다. 
+ */
+
