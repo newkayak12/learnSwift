@@ -547,6 +547,114 @@ optionalDictionary? ["numberArray"]?[2]
                  제어문 전황 명령어
              }
  
-    guard 구문을 사용하면 if 코드를 훨씬 간결하고 읽기 좋게 구성할 수 있다. if 구문을 사용하면 예외사항을 else 블록으로 처리해야하지만 예외 사항만 처리하고 싶다면 guard 구문을 사용하는 것이 훨씬 간편하다. 
+    guard 구문을 사용하면 if 코드를 훨씬 간결하고 읽기 좋게 구성할 수 있다. if 구문을 사용하면 예외사항을 else 블록으로 처리해야하지만 예외 사항만 처리하고 싶다면 guard 구문을 사용하는 것이 훨씬 간편하다.
+ 
+ //같은 역할을 하는 if 구문과 guard 구문
+ 1. if
+    for i in 0...3 {
+        if i == 2 {
+            print(i)
+        } else {
+            continue
+        }
+    }
+ 
+ 2. guard
+    for i in 0...3 {
+        guard i == 2 else {
+                continue
+        }
+        print(i)
+    }
+ 
+Bool 타입의 값으로 guard 구문을 동작시킬 수 있지만 옵셔널 바인딩의 역할도 할 수 있다. guard 뒤에 따라오는 옵셔널 바인딩 표현에서 옵셔널의 값이 있는 상태라면 guard 구문에서 옵셔널 바인딩된 상수를 guard 구문이 실행된 아래 코드부터 함수 내부의 지역 상수처럼 사용할 수 있다.
  */
 
+//guard 구문의 옵셔널 바인딩 활용
+func greet( _ person: [String: String]) {
+    guard let name: String = person["name"] else {
+        return
+    }
+    
+    print("HELLO! \(name)")
+    
+    guard let location: String = person["location"] else {
+        return
+    }
+    
+    print("I hope the weather is nice in \(location)")
+}
+
+var personInfo: [String: String] = [String: String]()
+personInfo["name"] = "Jenny"
+
+greet(personInfo)
+
+personInfo["location"] = "KOREA"
+
+greet(personInfo)
+/**
+    guard를 통해서 옵셔널 바인딩 된 상수는 greet(_:) 함수 내에서 지역 상수 처럼 사용된 것을 볼 수있다. 그러면 옵셔널 체이닝에서 작성했던 코드를 조금 더 발전시켜보자 Address 구조체의 fullAddress()메소드를 변경해보자
+ */
+struct Address3 {
+    var province: String;
+    var city: String;
+    var street: String;
+    var building: Building?;
+    var detailAddress: String?;
+    
+    init(province: String, city: String, street: String){
+        self.province = province
+        self.city = city
+        self.street = street
+    }
+    
+    func fullAddress() -> String? {
+        var restAddress: String? = nil;
+        
+        if let buildingInfo: Building = self.building {
+            restAddress = buildingInfo.name;
+            
+        } else if let detail = self.detailAddress {
+            restAddress = detail;
+        }
+        
+        guard let rest: String = restAddress else {
+            return nil
+        }
+        
+        var fullAddress: String = self.province;
+        
+        fullAddress += " " + self.city;
+        fullAddress += " " + self.street;
+        fullAddress += " " + rest;
+        
+        return fullAddress
+    }
+    
+    func printAddress() {
+        if let address: String = self.fullAddress(){
+            print(address)
+        }
+    }
+}
+/**
+    이렇게 사용하면 if let 바인딩보다는 조금 더 깔끔하고 명료하게 사용할 수 있다. 조금 더 구체적을 주건을 추가하고 싶다면 쉼표(,)로 추가 조건을 나열해주면 된다. 추가된 조근은 Bool 타입 값이어야 한다. 또, 쉼표로 추가된 조건은 AND 논리 연산과 같은 결과를 준다. 즉, 쉼표를 &&로 치환해도 같은 결과를 얻을 수 있다.
+ */
+func enterClub(name: String?, age: Int?){
+    guard let name: String = name, let age: Int = age, age > 19, name.isEmpty == false else {
+        print("You are too young to enter the club")
+        return
+    }
+    
+    print("Welcome \(name)!")
+}
+/**
+    guard 구문의 한계는 자신을 감싸는 불록, 즉 return, break, continue, throw 등의 제어문 전환 명령어를 쓸 수 없는 상황이라면 사용이 불가능하다는 점이다. 함수나 메소드, 반복문 등 특정 블록 내부에 위치하지 않는다면 사용이 제한된다.
+ */
+//guard를 사용할 수 없는 경우
+//let fir: Int = 3
+//let sec: Int = 5
+//guard fir > sec else {
+//    //여기에 들어올 제어문 전환 명령이 딱히 없다.
+//}
