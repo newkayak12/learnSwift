@@ -24,6 +24,7 @@
 		7EF881F1288D4B90004201B8 /* 04.accessControl.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 04.accessControl.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7EF881F3289016EC004201B8 /* 01.closure.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 01.closure.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7EF881F42893C087004201B8 /* 02.mapAndFilterAndReduce.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 02.mapAndFilterAndReduce.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		7EF881F528950CD8004201B8 /* 03.Monad.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 03.Monad.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7EF9AA8D288971660060B951 /* 01.structureAndClass.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 01.structureAndClass.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
 
@@ -69,6 +70,7 @@
 			children = (
 				7EF881F3289016EC004201B8 /* 01.closure.playground */,
 				7EF881F42893C087004201B8 /* 02.mapAndFilterAndReduce.playground */,
+				7EF881F528950CD8004201B8 /* 03.Monad.playground */,
 			);
 			path = 03.functionalProgramming;
 			sourceTree = "<group>";
