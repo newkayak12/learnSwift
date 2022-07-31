@@ -138,4 +138,49 @@ let mappedResult = optionalString.map(stringToInteger) // 이러면 체이닝이
 print(mappedResult)
 /**
     위의 예시에서 String 타입을 Int로 변환하는 것은 실패할 가능성을 내포하기 때문에 결과값으로 옵셔널 타입이 반환된다. Int에서 String 은 실패 가능성은 없지만 예를 들고자 옵셔널으로 반환했다. 플랫맵을 사용하여 체인을 연결했을 떄 결과는 옵셔널이다. 그러나 맵을 사용하여 체인을 연결하면 옵셔널의 옵셔널 형태로 반환된다. 그 이유는 플랫맵은 함수의 결과 값에 값이 있다면 추출해서 평평하게 만드는 과정을 내포하고 맵은 그렇지 않기 때문이다. 즉, 플랫맵은 항상 같은 컨텍스트를 유지할 수 있으므로 이같은 연쇄 연산도 가능한 것이다.
+ 
+        옵셔널의 맵과 플랫맵의 정의
+        func map<U>( _ transform: (Wrapped) throws -> U ) rethrows -> U?
+        func flatMap<U>( _ transform: (Wrapped) throws -> U? ) rethrows -> U?
+ 
+    옵션널의 map(_:)과 flatMap(_:)의 정의를 보면 <플랫맵의 활용>의 결과가 왜 그렇게 도출됐는지 명확해진다. 맵에서 전달받는 함수 transform은 포장된 값을 매개변수로 갖고 U를 반환하는 함수이다. 예를 들어 <플랫맵의 활용>의 stringToInt(_:)는 String 타입을 전달받고 Int? 타입을 반환한다. U == Int?가 된다. U대신 Int?를 대입하면 결과가 보일 것이다. String 옵셔널의 맵에 stringToInt(_:) 함수를 전달하면 최종 변환 타입이 Int??가 된다.
+ 
+    반면에 플랫맵이 전달받는 transform은 포장된 값을 매개변수로 갖고 U?를 반환하는 함수이다. transform에 stringToInt(_:)를 대입해 생각해보면 U? == Int?가 된다. 즉 U == Int가 되기 때문에 플랫맵의 동작 결과는 최종적으로 Int? 타입을 반환하게 된다.
+ 
+    만약에 플랫맵을 사용하지 않으면서도 플랫맵 같은 효과를 얻으려면 아래처럼 바인딩을 직접 해줘야한다.
+ */
+
+var result: Int?
+if let string: String = optionalString {
+    if let number: Int = stringToInteger(string){
+        if let finalString: String = integerToString(number){
+            if let finalNumber: Int = stringToInteger(finalString){
+                result = Optional(finalNumber)
+            }
+        }
+    }
+}
+print(result)
+
+if let string: String = optionalString,
+   let number: Int = stringToInteger(string),
+   let finalString: String = integerToString(number),
+   let finalNumber: Int = stringToInteger(finalString){
+    result = Optional(finalNumber)
+}
+print(result)
+/**
+    위의 예시처럼 바인딩을 통해서 연산을 실행할 떄, 아무리 간단하게 구현하려 해도 플랫맵을 사용하는 것보다는 간단하지 않아 보인다. 플랫맵은 체이닝 중간에, 연산에 실패하는 경우나 값이 없어지는 경우 (.none이 된다거나 nil이 된다는 등)에는 별도의 예외 처리 없이 빈 컨테이너를 반환한다.
+ */
+func integerrToNil( param: Int ) -> String? {
+    return nil
+}
+
+optionalString = "2"
+result = optionalString.flatMap(stringToInteger).flatMap(integerrToNil).flatMap(stringToInteger)
+print(result)
+/**
+    flatMap(intToNil) 부분에서 nil, 즉 Optional.none을 반환받기 때문에 이후에 호출되는 메소드는 무시한다. 이는 앞서 알아본 옵셔널 체이닝과 같은 동작이다. 이는 옵셔널이 모나드이기 때문에 가능하다.
+ 
+    지금까지의 옵셔널 체이닝, 옵셔널 바인딩, 플랫맵 등은 모나드와 관련된 연산이다. 스위프트의 기본 모나드 타입이 아니더라도 플랫맵 모양의 모나드 연산자를 구현하면 사용자 정의 타입(흔히 클래스 또는 구조체 등)도 모나드로 사용할 수 있다.
  */
