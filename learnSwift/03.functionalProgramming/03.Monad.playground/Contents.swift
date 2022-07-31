@@ -116,3 +116,26 @@ let flatmappedMultipleContainer = multipleContainer.flatMap{ $0.flatMap{ $0 }}
 
 print(mappedMultipleContainer)
 print(flatmappedMultipleContainer)
+/**
+    위의 결과에서 볼 수 있듯이 컨테이너 내부의 데이터에 다시 맵을 적용했을 때와 플랫맵을 적용했을 때의 결과는 확연히 다르다. 플랫맵은 내부의 값을 1차원으로 펼쳐놓는 작업도 하기 때문에, 값을 꺼내어 모두 동일한 위상으로 펼쳐놓은 모양새를 갖출 수 있다. 그래서 값을 일자로 평평하게 펼친다고 해서 플랫맵이다.
+ 
+    스위프트는 옵셔널에 관련된 여러 컨테이너의 값을 연달아 처리할 떄 바인딩을 통해 체인 형식으로 사용할 수 있기에 맵보다는 플랫맵이 더욱 유용하게 쓰일 수 있다. 다소 억지스럽지만 Int 타입을 String 타입으로, 그리고 String 타입을 Int타입으로 변환하는 과정을 체인 형식으로 구현해보자
+ */
+//플랫맵의 활용
+func stringToInteger( _ string: String ) -> Int? {
+    return Int(string)
+}
+func integerToString( _ integer: Int) -> String? {
+    return "\(integer)"
+}
+
+var optionalString: String? = "2"
+
+let flattenResult = optionalString.flatMap(stringToInteger).flatMap(integerToString).flatMap(stringToInteger)
+print(flattenResult)
+
+let mappedResult = optionalString.map(stringToInteger) // 이러면 체이닝이 더이상 불가하다.
+print(mappedResult)
+/**
+    위의 예시에서 String 타입을 Int로 변환하는 것은 실패할 가능성을 내포하기 때문에 결과값으로 옵셔널 타입이 반환된다. Int에서 String 은 실패 가능성은 없지만 예를 들고자 옵셔널으로 반환했다. 플랫맵을 사용하여 체인을 연결했을 떄 결과는 옵셔널이다. 그러나 맵을 사용하여 체인을 연결하면 옵셔널의 옵셔널 형태로 반환된다. 그 이유는 플랫맵은 함수의 결과 값에 값이 있다면 추출해서 평평하게 만드는 과정을 내포하고 맵은 그렇지 않기 때문이다. 즉, 플랫맵은 항상 같은 컨텍스트를 유지할 수 있으므로 이같은 연쇄 연산도 가능한 것이다.
+ */
