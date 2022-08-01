@@ -134,6 +134,51 @@ print(SeoulKoreanFood.introduceClass() as String)
 //SeoulKoreanFood.introduceClass() as Void
 
 /**
-    KoreanFood는 Food를 상속받았고 
+    KoreanFood는 Food를 상속받았고 SeoulKoreanFood는 KoreanFood를 상속 받았다. KoreanFood에서 Food 클래스의 recipe를 재정의했고, SeoulKoreanFood에서  Food의 introduceClass를 재정의 했다. KoreanFood에서 재정의한 recipe는 SeoulKoreanFood 클래스로 상속되었으므로 SeoulKoreanFood는 recipe를 호출하면 KoreanFood의 메소드가 호출된다. 스위프트에서는 반환타입, 매개변수가 다르면 서로 다른 메소드로 취급한다.
  
+ 
+            2.2. 프로퍼티 재정의
+    메소드와 마찬가지로 부모 클래스로부터 상속받은 인스턴스 프로퍼티나 타입 프로퍼티를 자식 클래스에서 용도에 맞게 재정의할 수 있다. 프로퍼티를 재정의할 떄는 저장 프로퍼티로 재정의할 수는 없다. 프로퍼티를 재정의한다는 것은 프로퍼티 자체가 아니라 프로퍼티의 접근자(Getter), 설정자(Setter), 프로퍼티 옵저버(Property Observer) 등을 재정의하는 것을 의미한다.  조상클래스에서 저장 프로퍼티로 정의한 프로퍼티는 물론이고 연산 프로퍼티로 정의한 프로퍼티도 접근자와 설정자를 재정의할 수 있다. 프로퍼티를 상속받은 자식 클래스에서 조상 클래스의 프로퍼티 종류(저장, 연산)는 알지 못하고 단지 이름과 타입만을 알기 때문이다. 재정의하려는 프로퍼티는 조상 클래스 프로퍼티의 이름과 타입이 일치해야한다. 만약 조상클래스에 없는 프로퍼티를 재정의하려고 하면 메소드와 마찬가지로 컴파일 에러가 발생한다.
+ 
+    조상 클래스에서 읽기 전용 프로퍼티였더라도 자식 클래스에서 읽고 쓰기가 가능한 프로퍼티로 재정의해줄 수도 있다. 그러나, 읽기/ 쓰기 모두 가능했던 프로퍼티를 읽기 전용으로 재정의할 수는 없다. 읽기/ 쓰기가 모두 가능한 프로퍼티를 재정의할 때 설정자만 따로 재정의할 수는 없다. 즉, 접근자와 설정자를 모두 재정의해야한다. 만약 접근자에 따로 기능 변경이 필요 없다면 super.someProperty와 같은 식으로 부모클래스의 접근자를 사용하여 값을 받아와서 반환하면 된다.
+ */
+
+class Person2 {
+    var name: String = ""
+    var age: Int = 0
+    var koreaAge: Int {
+        self.age + 1
+    }
+    var introduction: String {
+        "이름 \(name), 나이 \(age)"
+    }
+}
+class Student2: Person2 {
+    var grade: String = "F"
+    override var introduction: String{
+        super.introduction + " 학점 \(self.grade)"
+    }
+    override var koreaAge: Int {
+        get {
+            super.koreaAge
+        }
+        set {
+            self.age = newValue - 1
+        }
+    }
+}
+let yj: Person2 = Person2()
+yj.name = "YJ"
+yj.age = 55
+print(yj.introduction)
+print(yj.koreaAge)
+
+let jayG: Student2 = Student2()
+jayG.name = "JAYG"
+jayG.age = 20
+jayG.koreaAge = 21
+print(jayG.introduction)
+print(jayG.koreaAge)
+/**
+    위 예시에서는 Student2 클래스에서는 Person2 클래스에서 상속받은 introduction과 koreanAge라는 연산 프로퍼티를 재정의했다. 읽기 전용이었다. koreanAge프로퍼티는 읽기/ 쓰기 모두 가능하도록 했고 introduction은 학점도 노출하도록 재정의 했다 .
  */
