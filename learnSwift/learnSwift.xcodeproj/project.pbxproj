@@ -26,6 +26,7 @@
 		7EF881F42893C087004201B8 /* 02.mapAndFilterAndReduce.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 02.mapAndFilterAndReduce.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7EF881F528950CD8004201B8 /* 03.Monad.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 03.Monad.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7EF881F82896B1DF004201B8 /* 01.subScript.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 01.subScript.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		7EF881F92897F1E6004201B8 /* 02.Inheritance.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 02.Inheritance.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7EF9AA8D288971660060B951 /* 01.structureAndClass.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 01.structureAndClass.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 /* End PBXFileReference section */
 
@@ -81,6 +82,7 @@
 			isa = PBXGroup;
 			children = (
 				7EF881F82896B1DF004201B8 /* 01.subScript.playground */,
+				7EF881F92897F1E6004201B8 /* 02.Inheritance.playground */,
 			);
 			path = 04.extend;
 			sourceTree = "<group>";

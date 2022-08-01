@@ -1,4 +1,5 @@
 import UIKit
+import Foundation
 
 /**
           >  서브스크립트
@@ -37,5 +38,150 @@ import UIKit
         //적절한 서브스크립트 결과값 반환
     }
 
- 위 두 서브스크립트 정의는 동일한 역할을 한다. get 메소드 없이 단순히 값만 반환하도록하면 읽기 전용이 된다. 
+ 위 두 서브스크립트 정의는 동일한 역할을 한다. get 메소드 없이 단순히 값만 반환하도록하면 읽기 전용이 된다.
+ 
+        2. 서브스크립트 구현
+ 서브스크립트는 자신이 가지는 시퀀스나 컬렉션, 리스트 등의 요소를 반환하고 설정할 때 주로 사용된다.
  */
+struct Student {
+    var name: String
+    var number: Int
+}
+class School {
+    var number: Int = 0
+    var students: [Student] = [Student]()
+    
+    func addStudent(name: String){
+        let student: Student = Student(name: name, number: self.number)
+        self.students.append(student)
+        self.number += 1
+    }
+    
+    func addStudents(names: String...){
+        for name in names {
+            self.addStudent(name: name)
+        }
+    }
+    
+    subscript(index: Int) -> Student? {
+        if index < self.number{
+            return self.students[index]
+        }
+        return nil
+    }
+}
+let highSchool: School = School()
+highSchool.addStudents(names: "MIJEONG", "JUHYUN", "JIYOUNG", "SEONGUK", "MOONDUK")
+let aStudent: Student? = highSchool[1]
+print("\(aStudent?.number) \(aStudent?.name)")
+
+
+/**
+        3. 복수 서브스크립트
+ 하나의 타입이 여러 개의 서브스크립트를 가질 수도 있다. 다양한 매개변수 타입을 사용하여 서브스크립트를 구현하면 여러 용도로 서브스크립트 사용할 수 있다는 뜻이다.
+ */
+struct Student2 {
+    var name: String
+    var number: Int
+}
+class School2 {
+    var number: Int = 0
+    var students: [Student2] = [Student2]()
+    
+    func addStudent(name: String){
+        let student: Student2 = Student2(name: name, number: self.number)
+        self.students.append(student)
+        self.number += 1
+    }
+    
+    func addStudents(names: String...){
+        for name in names {
+            self.addStudent(name: name)
+        }
+    }
+    
+    subscript(index: Int) -> Student2? {
+        get{
+            if index < self.number{
+                return self.students[index]
+            }
+            return nil
+        }
+        set{
+            guard var newStudent: Student2 = newValue else {
+                return
+            }
+            
+            var number: Int = index
+            if index > self.number {
+                number = self.number
+                self.number += 1
+            }
+            
+            newStudent.number = number
+            self.students[number] = newStudent
+        }
+    }
+    
+    subscript(name: String) -> Int? {
+        get {
+            return self.students.filter{ $0.name == name }.first?.number
+        }
+        set {
+            guard var number: Int = newValue else {
+                return
+            }
+            if number > self.number {
+                number = self.number
+                self.number += 1
+            }
+            
+            let newStudent: Student2 = Student2(name: name, number: number)
+            self.students[number] = newStudent
+        }
+    }
+    
+    subscript(name: String, number: Int) -> Student2? {
+        return self.students.filter{ $0.name == name && $0.number == number }.first
+    }
+}
+
+let highSchool2: School2 = School2()
+highSchool2.addStudents(names: "MIJEONG", "JUHYUN", "JIYOUNG", "SEONGUK", "MOONDUK")
+
+let aStudent2: Student2? = highSchool2[1]
+print("\(aStudent2?.number) \(aStudent2?.name)")
+
+print(highSchool2["MIJEONG"])
+print(highSchool2["DONGJIN"])
+
+highSchool2[0] = Student2(name: "HONGEUI", number: 0)
+highSchool2["MANGGU"] = 1
+
+print(highSchool2["JUHYUN"])
+print(highSchool2["MANGGU"])
+print(highSchool2["SEONGHUK", 3])
+print(highSchool2["HEEJIN", 3])
+
+/**
+    위의 예시에서 School2 클래스에 총 3개의 스크립트를 정의했다. 두 개의 읽고 쓰기 가능한 서브스크립트 하나와 읽기 전용 서브스크힙트를 작성했고 각각 서브스크힙트는 매개변수 타입 개수, 반환 티입이 모두 다르다.
+ 
+    첫 번쨰 서브스크립트튼 학생의 번호를 전달받아 해당하는 학생이 있다면 Student 인스턴스를 반환하거나 특정 번호에 학생을 할당하는 서브스크립트이다. 두 번쨰 서브스크립트는 학생의 이름을 전달받아 해당하는 학생이 있다면 번호를 반환하거나 특정 이름의 학생을 해당 번호에 할당하는 서브스크립트이다. 마지막 세 번째 서브스크립트는 이름과 번호를 전달받아 해당하는 학생이 있다면 찾아서 Student 인스턴스를 반환다.
+    
+    이처럼 서브스크립트는 메소드인듯 아닌듯, 연산 프로퍼티인 듯 아닌 듯 중간 형태를 띠며 인스턴스 이름 뒤에 대괄호만 써서 편리하게 내부 값에 접근하고 설정해줄 수 있다. 또, 다양한 목적으로 구현해주는 데 용이하다.
+    
+ 
+        
+        4. 타입 서브스크립트
+    이전까지 설명한 서브스크립트는 인스턴스에서 사용할 수 있는 서브스크립트이다. 타입 서브스크립트는 인스턴스가 아니라 타입 자체에서 사용할 수 있는 서브스크립트이다. 타입 서브스크립트를 구현하려면 서브스크립트를 정의할 때 subscript앞에 static 키워드를 붙여주면 된다. 클래스의 경우 class 키워드를 사용할 수도 있다.
+ */
+enum SchoolEnum: Int {
+    case elementary = 1, middle, high, university
+    
+    static subscript( level: Int ) -> SchoolEnum? {
+        return Self(rawValue: level)
+    }
+}
+
+let schoolEnum: SchoolEnum? = SchoolEnum[2]
+print(schoolEnum)
