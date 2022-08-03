@@ -384,3 +384,231 @@ final class IpadOs: Ios {
  
  */
 
+class Person4 {
+    var name: String
+    var age: Int
+    
+    init(name: String, age: Int){
+        self.name = name
+        self.age = age
+    }
+}
+
+class Student4: Person4 {
+    var major: String
+    init(name: String, age: Int, major: String){
+        self.major = "Swift"
+        super.init(name: name, age: age)
+    }
+    convenience init(name: String){
+        self.init(name: name, age: 7, major: "")
+    }
+}
+
+/**
+    Student4 클래스의 지정 이니셜라이저(init(name:age:major))는 부모클래스의 지정 이니셜라이저를 호출하기 전에 자신의 self 프로퍼티를 이용해 major 프로퍼티의 값을 할당한다. 그렇게 하면 안전확인 중 1번 조건에 만족한다. 그리고 super.init(name: name, age: age)를 통해 부모 클래스의 이니셜라이저를 호출했으며 그 외에 상속받은 프로퍼티가 없으므로 부모의 이니셜라이저 호출 이후에 값을 할당해줄 프로퍼티가 없다. 따라서 2번 조건을 갖췄다. 또, 편의 이니셜라이저인 convenience init(name:)은 따로 차후에 값을 할당할 프로퍼티가 없고, 다른 이니셜라이저를 호출했으므로 3번 조건에 부합한다. 마지막으로 이니셜라이저 어디에서도 인스턴스 메소드를 호출하거나 인스턴스 프로퍼티의 값을 읽어오지 않았으므로 4번 조건도 충족한다.
+ 
+    안전확인 후 super.init(name:name, age:age)를 통해 1단계와 2단계의 초기화까지 마치게 된다.
+ 
+ 
+        
+ 
+            3.4. 이니셜라이저 상속 및 재정의
+    기본적으로 스위프트의 이니셜라이저는 부모클래스의 이니셜라이저를 상속받지 않는다. 부모 클래스로부터 물려받은 이니셜라이저는 자식클래스에 최적화되어 있지 않아서, 부모의 이니셜라이저를 사용했을 때 자식 클래스의 새로운 인스턴스가 완전하고 정확하게 초기ㅗ하 되지 않는 상황을 방지하고나 함이다. 안전하고 적절하다고 판단되는 특정한 솽황에서는 부모 클래스의 이니셜라이저가 상속되기도 한다.
+ 
+    보통 부모 클래스의 이니셜라이저와 독같은 이니셜라이저를 자식클래스에서 사용하고 싶다면 자식 클래스에서 부모의 이니셜라이저와 똑같은 이니셜라이저를 구현해주면 된다.
+ 
+    부모클래스와 동일한 지정 이니셜라이저를 자식 클래스에서 구현해주려면 재정의하면 된다. 그러려면 override 수식어를 붙어야 한다. 클래스에 주어지는 기본 이니셜라이저를 재정의 할 때도 마찬가지입니다. 자식클래스의 편의 이니셜라이저가 부모클래스의 지정 이니셜라이저를 재정의하는 경우에도 override 수식어를 붙인다.
+ 
+    반대로 부모클래스의 편의 이니셜라이저와 동일한 이니셜라이저를 자식클래스에 구현할 떄는 override를 붙이지 않는다. 자식클래스에서 부모클래스의 편의 이니셜라이저는 절대로 호출할 수 없기 때문이다.
+ */
+class Person5 {
+    var name: String
+    var age: Int
+    
+    init(name: String, age: Int){
+        self.name = name
+        self.age = age
+    }
+    convenience init(name: String){
+        self.init(name: name, age: 0)
+    }
+}
+class Student5: Person5{
+    var major: String
+    
+    override init(name: String, age: Int){
+        self.major = "Swift"
+        super.init(name: name, age: age)
+    }
+    convenience init(name: String){
+        self.init(name: name, age: 7)
+    }
+}
+/**
+    위의 코드를 보면 Person5를 상속받은 Student5에서 부모 클래스의 편의 이니셜라이저와 동일한 편의 이니셜라이저를 정의할 때 override 수식어를 붙이지 않는 것을 볼 수 있다. 반대로 지정 이니셜라이저는 재정의를 위해 override 수식어를 사용할 것을 볼 수 있다. 기본 이니셜라이저 외 지정 이니셜라이저를 자식클래스에서 동일한 이름으로 정의하려면 재정의를 위한 override를 명시해야한다.
+ 
+    부모의 실패 가능한 이니셜라이저를 자식에서 재정의하고 싶을 때는 실패 가능한 이니셜라이저로 재정의해도 되고 필요에 따라서 실패하지 않는 이니셜라이저로 재정의할 수도 있다.
+ */
+class Person6 {
+    var name: String
+    var age: Int
+    
+    init(){
+        self.name = "Unknown"
+        self.age = 0
+    }
+    init?(name: String, age: Int){
+        if name.isEmpty {
+            return nil
+        }
+        self.name = name
+        self.age = age
+    }
+    init?(age: Int){
+        if age < 0 {
+            return nil
+        }
+        self.name = "unknown"
+        self.age = age
+    }
+}
+class Student6: Person6 {
+    var major: String
+    
+    override init?(name: String, age: Int){
+        self.major = "Swift"
+        super.init(name: name, age: age)
+    }
+    override init(age: Int){
+        self.major = "Swift"
+        super.init()
+    }
+}
+/**
+    위의 Person6은 하나의 지정 이니셜라이저와 두 개의 실패 가능 지정이니셜 라이저가 있다. 이를 Student6 에서 재정의할 때 하나는 부모 클래스와 마찬가지로 실패 가능한 이니셜라이저로 재정의했고, 하나는 실패하지 않는 이니셜라이저로 재정의했다. 이처럼 부모클래스에서는 실패 가능한 이니셜라이저였더라도 자식 클래스에서는 필요에 따라 실패하지 않는 이니셜라이저로 재정의해줄 수 있다.
+ 
+ 
+ 
+    
+            3.5. 이니셜라이저 자동 상속
+    이니셜라이저 상속 및 재정의에서 기본적으로 스위프트의 이니셜라이저는 부모클래스의 이니셜라이저를 상속받지 않는다. 그러나 특정 조건에 부합한다면 부모 클래스의 이니셜라이저가 자동으로 상속된다. 사실, 대부분 경우 자식클래스에서 이니셜라이저를 재정의해줄 필요가 없다.
+ 
+    자식클래스에서 프로퍼티 기본값을 모두 제공한다고 가정할 때, 아래의 두 가지 규칙에 따라 이니셜라이저가 자동으로 상속된다.
+ 
+    [규칙 1] : 자식 클래스에서 별도의 지정 이니셜라이저를 구현하지 않는다면, 부모클래스의 지정 이니셜라이저가 자동으로 상속된다.
+    [규칙 2] : 만약 [규칙 1]에 따라 자식클래스에서 부모 클래스의 지정 이니셜라이저를 자도응로 상속받는 경우 또는 부모 클래스의 지정 이니셜아이저를 모두 재정의하여 부모클래스와 동일한 지정이니셜라이저를 모두 사용할 수 있는 상황이라면 부모 클래스의 편의 이니셜라이저가 모두 자동으로 상속된다.
+ */
+class Person7 {
+    var name: String
+    init(name: String){
+        self.name = name
+    }
+    convenience init(){
+        self.init(name: "Unknown")
+    }
+}
+
+class Student7: Person7 {
+    var major: String = "Swift"
+}
+
+//부모 클래스의 지정 이니셜라이저 자동 상속
+let per7: Person7 = Person7(name: "per7")
+let haha: Student7 = Student7(name: "haha")
+print(per7)
+print(haha)
+
+//부모의 편의 이니셜라이저 자동 상속
+let wizplan: Person7 = Person7()
+let jisung: Student7 = Student7()
+print(wizplan)
+print(jisung)
+/**
+    위 예시를 살펴보면 Student7의 major 프로퍼티에 기본값이 있으며, 따로 지정 이니셜라이저를 구현하지 않았으므로 부모인 Person7의 지정 이니셜라이저가 자도응로 상속된다. 이는 [규칙1]에 부합한다. 또, 부모쿨래스의 지정 이니셜라이저를 모두 자동으로 상속받았으므로 편의 이니셜라이저도 자동으로 상속된다.
+ */
+class Person8 {
+    var name: String
+    init(name: String){
+        self.name = name
+    }
+    convenience init(){
+        self.init(name: "Unknown")
+    }
+}
+class Student8: Person8 {
+    var major: String
+    override init(name: String){
+        self.major = "Unknown"
+        super.init(name: name)
+    }
+    init(name: String, major: String){
+        self.major = major
+        super.init(name: name)
+    }
+}
+// 부모클래스의 편의 이니셜라이저 자동 상속
+let wzp: Person8 = Person8()
+let js: Student8 = Student8()
+print(wzp.name)
+print(js.name)
+/**
+    Student8의 major 프로퍼티에 기본 값이 없더라도 이니셜라이저에서 적절히 초기화했고, 부모클래스의 지정 이니셜라이저를 모두 재정의하여 부모 클래스의 지정 이니셜라이저와 동일한 이니셜라이저를 모두 사용할 수 있는 상화잉므로 [규칙1]에 부합한다. 따라서 부모클래스의 편의 이니셜라이저가 자동으로 상속되었다.
+ 
+    자동 상속 규칙은 자식클래스에 편의 이니셜라이저를 추가한다고 하더라도 유효하다. 또, 부모 클래스의 지정 이니셜라이저를 자식 클래스의 편의 이니셜라지어로 구현하더라도 [규칙2]를 충족한다.
+ */
+//편의 이니셜라이저 자동 상속2
+class Person9 {
+    var name: String
+    init(name: String){
+        self.name = name
+    }
+    convenience init(){
+        self.init(name: "unknown")
+    }
+}
+class Student9: Person9 {
+    var major: String
+    convenience init(major: String){
+        self.init()
+        self.major = major
+    }
+    override convenience init(name: String){
+        self.init(name:name, major: "unknown")
+    }
+    init(name: String, major: String){
+        self.major = major
+        super.init(name: name)
+    }
+}
+//부모클래스의 편의 이니셜라이저 자동 상속
+let wzpl: Person9 = Person9()
+let jsng: Student9 = Student9(major: "Swift")
+print(wzpl.name)
+print(jsng.name)
+print(jsng.major)
+
+/**
+    Student 클래스에서 부모클래스의 지정 이니셜라이저인 init(name:) 을 편의 이니셜라이저로 재정의했지만 부모의 지정 이니셜라이저를 모두 사용할 수 있는 상황인 [규칙2]에 부합하므로 부모 클래스의 편의 이니셜라이저를 사용할 수 있다. 또, 자신만의 편의 이니셜라이저는 convenience init(major:)를 구현해주었지만 편의 이니셜라이저 자동 상속에는 아무런 영향이 없다.
+ */
+class UniversityStudent2: Student9 {
+    var grade: String = "A+"
+    var description: String {
+        return "\(self.name) \(self.major) \(self.grade)"
+    }
+    convenience init(name: String, major: String, grade: String){
+        self.init(name: name, major: major)
+        self.grade = grade
+    }
+}
+let nova: UniversityStudent2 = UniversityStudent2();
+print(nova.description)
+let raon: UniversityStudent2 = UniversityStudent2(name: "raon")
+print(raon.description)
+let joker: UniversityStudent2 = UniversityStudent2(name: "joker", major: "swift")
+print(joker.description)
+let chope: UniversityStudent2 = UniversityStudent2(name: "chope", major: "computer", grade: "C++")
+print(chope.description)
+/**
+    위 예시를 보면 Student9을 상속받은 UniversityStudent2는 grade 프로퍼티에 기본값이 있으며, 별도의 지정 이니셜라이저를 구현해 주지 않았으므로 규칙1에 부합한다. 따라서 부모 클래스의 이니셜라이저를 모두 자동 상속 받는다. 게다가 자신 만의 편의 이니셜라이저를 구현했지만 자동상속에는 영향이 없다. 결과적으로 UniversityStudent2는 상속받은 이니셜라이저 + 자신의 편의 이니셜라이저를 모두 사용할 수 있다.
+ */
