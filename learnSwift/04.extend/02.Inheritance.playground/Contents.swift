@@ -611,4 +611,69 @@ let chope: UniversityStudent2 = UniversityStudent2(name: "chope", major: "comput
 print(chope.description)
 /**
     위 예시를 보면 Student9을 상속받은 UniversityStudent2는 grade 프로퍼티에 기본값이 있으며, 별도의 지정 이니셜라이저를 구현해 주지 않았으므로 규칙1에 부합한다. 따라서 부모 클래스의 이니셜라이저를 모두 자동 상속 받는다. 게다가 자신 만의 편의 이니셜라이저를 구현했지만 자동상속에는 영향이 없다. 결과적으로 UniversityStudent2는 상속받은 이니셜라이저 + 자신의 편의 이니셜라이저를 모두 사용할 수 있다.
+ 
+ 
+            3.6 요구 이니셜라이저
+    required 수식어를 클래스의 이니셜라이저 앞에 명시해주면 이 클래스를 상속받은 자식클래스에서 반드시 해당 이니셜라이저를 구현해주어야 한다. 다시 말하면 상속받을 때 반드시 재정의해야하는 이니셜라이저 앞에 required 수식어를 붙여준다. 다만 자식 클래스에서 요구하는 이니셜라이저를 재정의할 때는 override 수식어 대신에 required 수식어를 사용한다.
+ 
+ */
+
+class Person0 {
+    var name: String
+    required init(){
+        self.name = "unknown"
+    }
+}
+
+class Student0: Person0 {
+    var major: String = "unknown"
+}
+
+let mijeong0: Student0 = Student0()
+
+/**
+    위 코드를 보면 person0 클래스에 init() 요청 이니셜라이저를 구현해주었지만, Person0 클래스를 상속받은 Student0 클래스에는 요구 이니셜라이저를 구현하지 안않다. 이는 Student0 클래스의 major 프로퍼티에 기본값이 있으면 별다른 지정 이니셜라이저가 없기 떄문에 이니셜라이저가 자동으로 상속된 것이다.
+    
+    만약 Student0 클래스에 새로운 지정 이니셜라이저를 구현한다면 부모클래스로부터 이니셜라이저가 자동으로 상속되지 않으므로 요구 이니셜라이저를 구현해줘야한다.
+ */
+
+class Person10 {
+    var name : String
+    required init() {
+        self.name = "unknown"
+    }
+}
+class Student10: Person10 {
+    var major: String = "unknown"
+    
+    init( major: String ){
+        self.major = major
+        super.init()
+    }
+    required init(){
+        self.major = "unknown"
+        super.init()
+    }
+}
+class UniversityStudent10: Student10 {
+    var grade: String
+    init( grade: String ){
+        self.grade = grade
+        super.init()
+    }
+    required init(){
+        self.grade = "F"
+        super.init()
+    }
+}
+let jsoo: Student10 = Student10()
+print(jsoo.major)
+let ygm: Student10 = Student10(major: "Swift")
+print(ygm.major)
+let juHyn: UniversityStudent10 = UniversityStudent10(grade: "A+")
+print(juHyn.grade)
+/**
+    위 코드를 보면 Student10와 UniversityStudent10 클래스는 자신만의 지정 이니셜라이저를 구현했다. 그래서 부모클래스의 이니셜라이저를 자동 상속받지 못한다. 그래서 Person10클래스에서 정의한 요구 이니셜라이저를 이니셜라이저 자동 상속 규칙에 부합하지않은 자식클래스인 Student10에도 구현해주고, 그 자식클래스 UniversityStudent 클래스에도 구현해줘야한다. 이니셜라이저 자동 상속의 규칙에 부합하지 않는 한, 요구 이니셜라이저는 반드시 구현해줘야한다.
+ 
+    
  */
