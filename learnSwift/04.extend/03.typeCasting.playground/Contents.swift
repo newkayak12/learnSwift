@@ -53,5 +53,39 @@ print(integerValue) //nil === Optional.none
 
 /**
         2. 스위프트 타입캐스팅
- 
+ 스위프트에서는 다른 언어의 타입 변환 혹은 타입 캐스팅을 이니셜라이저로 단순화했다. 그렇다면 스위프트에선 타입 캐스팅이 없을가? 아니다. 스위프트에도 타입캐스팅은 있으며 대신 조금 다른 의미로 사용한다. 스위프트의 타입캐스팅은 인스턴스의 타입을 확인하거나 자신을 다른 타입의 인스턴스인양 행세할 수 있는 방법으로 사용할 수 있다. 스위프트의 타입캐스팅은 is와 as 연산자로 구현했다. 이 두 연산자로 값의 타입을 확인하거나 다른 타입으로 전환할 수 있다. 또한 타입 캐스팅을 통해 프로토콜을 준수하는지도 확인할 수 있다. 스위프트의 타입캐스팅은 실제로 참조 타입에 주로 사용된다.
+ */
+class Coffee {
+    let name: String
+    let shot: Int
+    var description: String {
+        return "\(shot) shot(s) \(name)"
+    }
+    init(shot: Int) {
+        self.shot = shot;
+        self.name = "coffee"
+    }
+}
+class Lattee: Coffee {
+    var flavor: String
+    override var description: String {
+        return "\(shot) shot(s) \(flavor) lattee"
+    }
+    init(flavor: String, shot: Int) {
+        self.flavor = flavor;
+        super.init(shot: shot)
+    }
+}
+class Americano: Coffee {
+    let iced: Bool
+    override var description: String {
+        return "\(shot) shot(s) \(iced? "iced":"hot" ) americano"
+    }
+    init(shot: Int, iced: Bool) {
+        self.iced = iced;
+        super.init(shot: shot)
+    }
+}
+/**
+    위 그림을 보면 Latte와 Americano 클래스는 Coffee 클래스를 상속받은 것을 확인할 수 있다. Coffee 클래스가 갖는 특성들을 Latte나 Americano가 모두 포함한다는 사실을 알 수 있다. 다시 말하면 Coffee나 Lattee나 Americano 인 척할 수는 없지만 Latee, Americano는 Coffee인 척할 수 있다는 뜻이다. 왜냐하면 Latte, Americano는 Coffee가 갖는 특성을 모두 갖기 떄문이다. 
  */
