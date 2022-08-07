@@ -675,5 +675,62 @@ print(juHyn.grade)
 /**
     위 코드를 보면 Student10와 UniversityStudent10 클래스는 자신만의 지정 이니셜라이저를 구현했다. 그래서 부모클래스의 이니셜라이저를 자동 상속받지 못한다. 그래서 Person10클래스에서 정의한 요구 이니셜라이저를 이니셜라이저 자동 상속 규칙에 부합하지않은 자식클래스인 Student10에도 구현해주고, 그 자식클래스 UniversityStudent 클래스에도 구현해줘야한다. 이니셜라이저 자동 상속의 규칙에 부합하지 않는 한, 요구 이니셜라이저는 반드시 구현해줘야한다.
  
-    
+    만약 부모클래스의 이ㄹ반 이니셜라이저를 자신의 클래스부터 요구 이니셜라이저로 변경할 수도 있다. 그럴 때는 required override를 명시해주어 재정의됨과 동시에 요구 이니셜라이저가 될 것임을 명시해줘야한다. 또, 편의 이니셜라이저도 요구 이니셜라이저로 변경될 수 있다. 마찬가지로 required convienience를 명시해주어 편의 이니셜라이저가 앞으로 요구될 것으로 명시해주면 된다.
  */
+class Person11 {
+    var name: String
+    init() {
+        self.name = "unknown"
+    }
+}
+class Student11: Person11 {
+    var major: String = "unknown"
+    init(major: String) {
+        super.init()
+        self.major = major
+    }
+    
+    //부모 클래스의 이니셜라이저를 재정의함과 동시에 요구 이니셜라이저로 변경됨을 알린다.
+    required override init() {
+        super.init()
+        self.major = "unknown"
+    }
+    
+    //이 요구 이니셜라이저는 앞으로 계속 요구한다.
+    required convenience init( name: String ) {
+        self.init()
+        self.name = name
+    }
+}
+
+class UniversityStudent11: Student11 {
+    var grade: String
+    init( grade: String ){
+        self.grade = grade
+        super.init()
+    }
+    
+    //student 클래스에서 요구했으므로 구현해줘야한다.
+    required init() {
+        self.grade = "F"
+        super.init()
+    }
+    
+    //student 클래스에서 요구했으므로 구현해줘야한다.
+    required convenience init( name: String ){
+        self.init()
+        self.name = name
+    }
+}
+
+let yj11: UniversityStudent11 = UniversityStudent11()
+print(yj11.grade)
+
+let jh11: UniversityStudent11 = UniversityStudent11(name: "JY")
+print(jh11.name)
+
+
+/**
+    위 코드에서 Person11에는 별다른 요구 이니셜라이저가 없다. 다만 Student11 크랠스에서 Person11의  init() 이니셜라이저를 재정의하면서 요구 이니셜라이저로 변경했다. 따라서 UniversityStudent11 클래스에서는 init() 이니셜라이저를 요구 이니셜라이저로 필히 구현해줘야한다. 또, Student 클래스의 편의 이니셜라이저 init(name:)이 요구 이니셜라이저로 지정되어있기 때문에 UniversityStudent11에서 다시 구현해줘야한다.
+ */
+
