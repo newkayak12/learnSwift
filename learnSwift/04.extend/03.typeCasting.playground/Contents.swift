@@ -268,3 +268,73 @@ checkType(of: coffee)
 checkType(of: myCoffee)
 checkType(of: yourCoffee)
 checkType(of: actingConstant)
+/**
+    위 예시에서는 AnyObject를 타입으로 명시한 item 매개변수가 있는 checkType(of:) 함수에 Coffee, Latte, Americano 타입의 인스턴스를 전달인자로 호출했다. 그 결과 checkType(of:) 함수 안에서 is 연산자를 이용해서 해당 인스턴스가 어떤 타입의 인스턴스인지만 확인할 수 있었다.
+    아래의 예시는 아예 해당 타입으로 캐스팅까지 하는 예시이다.
+ */
+func castTypeToAppropriate(item: AnyObject){
+    if let castedItem: Lattee = item as? Lattee {
+        print(castedItem.description)
+    } else if let castedItem: Americano = item as? Americano {
+        print(castedItem.description)
+    } else if let castedItem: Coffee = item as? Coffee {
+        print(castedItem.description)
+    } else {
+        print("unknown")
+    }
+}
+
+castTypeToAppropriate(item: coffee)
+castTypeToAppropriate(item: myCoffee)
+castTypeToAppropriate(item: yourCoffee)
+castTypeToAppropriate(item: actingConstant)
+/**
+    AnyObject는 클래스의 인스턴스만 취할 수 있었던 반면 Any는 모든 타입의 인스턴스를 취할 수 있다. Any는 함수, 구조체, 클래스, 열거형 등의 모든 타입의 인스턴스를 의미할 수 있다.
+ */
+func checkAnyType(of item: Any){
+    switch item {
+        case 0 as Int:
+            print("zero as an Int")
+        case 0 as Double:
+            print("zero as a Double")
+        case let someInt as Int:
+         print("an integer value of \(someInt)")
+        case let someDouble as Double where someDouble > 0:
+         print("a positive double value of \(someDouble)")
+        case is Double:
+         print("some other double value that I don't want to print")
+        case let someString as String:
+         print("a string value of \"\(someString)\"")
+        case let (x, y) as (Double, Double):
+         print("an (x, y) point at \(x), \(y)")
+        case let latte as Lattee:
+         print(latte.description)
+        case let stringConverter as (String) -> String:
+         print(stringConverter("yagom"))
+        default:
+         print("something else : \(type(of: item))")
+    }
+}
+
+checkAnyType(of: 0) // zero as an Int
+checkAnyType(of: 0.0) // zero as a Double
+checkAnyType(of: 42) // an integer value of 42
+checkAnyType(of: 3.14159) // a positive double value of 3.14159
+checkAnyType(of: -0.25) // some other double value that I don't want to print
+checkAnyType(of: "hello") // a string value of "hello"
+checkAnyType(of: (3.0, 5.0)) // an (x, y) point at 3.0, 5.0
+checkAnyType(of: yourCoffee) // 3 shot(s) green tea latte
+checkAnyType(of: coffee) // something else : Coffee
+checkAnyType(of: { (name: String) -> String in "Hello, \(name)" }) //Hello, yagom
+/**
+ Any를 타입으로 명시한 item 매개변수가 있는 checkAnyType(of:) 함수에 다양한 타입의 인스턴스를 전달인자로 호출했다. 그 결과 checkAnyType(of:) 함수 안에서 switch 조건 구문과 as 연산자, let 값 바인딩 등을 사용하여 item의 타입을 확인하고 타입에 맞는 동작을 할 수 있었다. 전달되는 전달인자에는 Int, Double, String, Tuple, ClassType, Function 등 다양한 타입이 전달될 수 있었으며, 적절히 처리된 것을 볼 수 있다. 또, switch case에 해당하지 않으면 default로 타입을 출력했다.
+ 
+    {
+                옵셔널과 Any
+        Any는 모든 값 타입을 표현한다. 더불어 옵셔널도 표현할 수 있다. 그런데도 Any 타입의 값이 들어와야할 자리에 옵셔널 타입의 값이 위치한다면 스위프트 컴파일러는 경고를 한다. 의도적으로 옵셔널 값을 Any로 사용하고자 한다면 as 연산자로 명시적 타입 캐스팅을 해주면 메시지를 받지 않는다.
+        
+        let optionalValue: Int? = 100
+        print(optionalValue) //컴파일러 경고 발생
+        print(optionalValue as Any) //경고 없음
+    }
+ */
