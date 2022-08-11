@@ -346,5 +346,5 @@ func printIntegerKinds(numbers: [Int]) {
 
 printIntegerKinds(numbers: [3, 19, -27, 0, -6, 0, 7])
 /**
-    익스텐션을 통해 Int 타입에 Kind라는 열거형 타입과 Kind 타입의 연산 프로퍼티를 추가해줬다. kind 프로퍼티는 인스턴스가 양, 음, 0인지 판단하여 Kind를 반환하는 연산프로퍼티이다. printIntegerKinds(numbers:)는 Int 배열을 전달받아 각 부호를 출력하는 함수이다. print에서 terminator를 ""로 한 이유는 줄바꿈을 하지 않기 위해서이다. 
+    익스텐션을 통해 Int 타입에 Kind라는 열거형 타입과 Kind 타입의 연산 프로퍼티를 추가해줬다. kind 프로퍼티는 인스턴스가 양, 음, 0인지 판단하여 Kind를 반환하는 연산프로퍼티이다. printIntegerKinds(numbers:)는 Int 배열을 전달받아 각 부호를 출력하는 함수이다. print에서 terminator를 ""로 한 이유는 줄바꿈을 하지 않기 위해서이다.
  */
