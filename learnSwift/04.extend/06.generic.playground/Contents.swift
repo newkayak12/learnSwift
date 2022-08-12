@@ -277,5 +277,202 @@ print(anyStack.topElement)
  
                         }
  
- 위 예시를 보면 Key, Value가 매개변수 타입이다. 근데 Key 뒤쪽에 : Hashable이 있다. 이는 타입 매개변수인 Key가 Hashable 프로토콜을 준수해야한다는 뜻이다. Hashable은 스위프트 표준 라이브러리에 정의되어 있으며, 스위프트 기본 타입(String, Int, Bool)등 모두 Hashable를 준수한다. 제네릭 타입에 제약을 주고 싶으면 타입 매개변수 뒤에 콜론을 붙인 후 원하는 클래스 타입 또는 프로토콜을 명시하면 된다. 
+ 위 예시를 보면 Key, Value가 매개변수 타입이다. 근데 Key 뒤쪽에 : Hashable이 있다. 이는 타입 매개변수인 Key가 Hashable 프로토콜을 준수해야한다는 뜻이다. Hashable은 스위프트 표준 라이브러리에 정의되어 있으며, 스위프트 기본 타입(String, Int, Bool)등 모두 Hashable를 준수한다. 제네릭 타입에 제약을 주고 싶으면 타입 매개변수 뒤에 콜론을 붙인 후 원하는 클래스 타입 또는 프로토콜을 명시하면 된다.
+ 
+                         //제네릭 타입 제약
+                         func swapTwoValues<T: BinaryInteger> (_ a: inout T, _ b: inout T){
+                             //함수 구현
+                         }
+
+                         struct Stack<Element: Hashable>{
+                             // 구조체 구현
+                         }
+ 
+ 위 코드는 기존에 타입제약 없이 구현했던 swapTwoValues(_:_:) 함수, Stack에 타입 제약을 준 것이다. 여러 제약을 추가하고 싶다면 콤마로 구분하는 것이 아니라 where을 사용할 수 있다. Stack 구조체의 Element에 Hashable 프로토콜을 준수하는 타입 제약을 준다면, Any 타입은 Hashable을 준수하지 안힉 때문에 Any를 인자로 던질 수 없을 것이다.
+ 
+ //제네릭 타입 제약 추가
+                         func swapTwoValues<T: BinaryInteger>(_ a: inout T, _ b: inout T) where T: FloatingPoint {
+                                        //함수 구현
+                         }
+ 
+where을 사용하면 제약을 추가할 수 있다. 즉 위 코드에서 T는 BinaryInteger 프로토콜을 준수하고, FloatingPoint 프로토콜도 준수하는 타입만 사용할 수 있다. 그러나 현실적으로 커스터마이징 전까지는 둘을 만족할 수는 없다. 따라서 이런 상황에서는 함수를 중복정의하거나 새로운 (프로토콜) 타입을 정의해서 사용하는 것이 좋다.
+ */
+
+//substractTwoValueFail 함수의 잘못된 구현
+//func substractTwoValue<T>(_ a: T, _ b: T) -> T {
+//    return a - b
+//}
+/**
+ 위의 함수는 T를 제한하지 않았기에 한계가 있는 함수이다.
+ */
+//substractTwoValueSuccess 함수의 구현
+func substractTwoValueSuccess<T: BinaryInteger>(_ a: T, _ b: T) -> T {
+    return a - b
+}
+/**
+    T의 타입을 BinaryInteger 프로토콜을 준수하는 타입으로 한전해두니 뺼셈 연산이 가능해졌다. 이처럼 타입 제약은 함수 내부에서 실행해야 할 연산에 따라 적절한 타입을 전달받을 수 있도록 제약을 둘 수 있다.
+ 
+    {
+        스위프트의 표준 라이브러리에 정의되어 있는 프로토콜 중 타입 제약에 자주 사용할 만한 프로토콜로는 Hashable, Equatable, Comparable, Indexable, InteratorProtocol, Error, Collection CustomStringConvertible 등이 있다. 
+ 
+    }
+ */
+//makeDictionaryWithTwoValue 함수의 구현
+func makeDictionaryWithTwoValue<Key:Hashable, Value> (key: Key, value: Value) -> Dictionary<Key, Value> {
+    let dictionary: Dictionary<Key, Value> = [key:value]
+    return dictionary
+}
+/**
+ makeDictionaryWithTwoValue(_:_:) 함수는 Key와 Value라는 매개변수가 있는데, 두 타입 매개변수의 제약조건이 다르다는 것을 알 수 있다. 이처럼 타입 매개변수마다 제약조건을 달리해서 구현해줄 수도 있다.
+ 
+ 
+ 
+                5. 프로토콜의 연관 타입
+ 프로토콜을 정의할 때 연관 타입(Associated Type)을 함께 정의하면 유용할 떄가 있다. 연관 타입은 프로토콜에서 사용할 수 있는 플레이스홀더 이름이다. 즉, 제네릭에서는 어떤 타입이 들어올 지 모를 때, 타입 매개변수를 통해 '종류는 알 수 없지만, 어떤 타입이 여기에 쓰일 것이다.'라고 표현했다면 연관 타입은 타입 매개변수의 그 역할을 프로토콜에서 수행할 수 있도록 만들어진 기능이다.
+ */
+protocol Container {
+    associatedtype ItemType
+    var count: Int { get }
+    mutating func append(_ item: ItemType)
+    subscript(i: Int) -> ItemType { get }
+}
+
+/**
+    위 코드의 Container 프로토콜은 존재하지 않는 타입인 ItemType을 연관 타입으로 정의하여 프로토콜 정의에서 타입 이름으로 활용한다. 이는 제네릭의 타입 매개변수와 유사한 기능으로 프로토콜 정의 내부에서 사용할 타입이 '그 어떤 것이어도 상관없지만, 하나의 타입임은 분명하다.'는 의미이다. 여기서 Container 프로토콜을 준수하는 타입이 꼭 구현해야 할 기능을 생각해보자
+ 
+    - 컨테이너의 새로운 아이템을 append(_:)로 추가할 수 있어야 한다.
+    - 아이템 개수를 확인할 수 있도록 Int 타입 값을 갖는 count 프로퍼티를 구현해야한다.
+    - Int 타입의 인덱스 값으로 특정 인덱스에 해당하는 아이템을 가져올 수 있는 서브스크립트를 구현해야 한다.
+ 
+    이 세 가지 조건을 충족하면 Container 프로토콜을 준수하는 타입이 될 수 있다. 그런데 생각해보면 컨테이너가 어떤 타입의 아이템을 저장해야 할지에 대해서는 언급하지 않는다는 것을 알 수 있다.
+ */
+//MyContainer 클래스 정의
+class MyContainer: Container {
+    var items: Array<Int> = Array<Int>()
+    
+    var count: Int {
+        return items.count
+    }
+    func append(_ item: Int){
+        items.append(item)
+    }
+    subscript(i: Int) -> Int {
+        return items[i]
+    }
+}
+
+/**
+ 위 MyContainer 클래스는 Container 프로토콜을 준수하기 위해서 필요한 것을 모두 갖췄다. 연관 타입인 ItemType 대신에 실제 타입인 Int 타입으로 구현해줬고, 이는 프로토콜의 요구사항을 모두 충족하므로 큰 문제가 없다. 왜냐하면 프로토콜에서 ItemType이라는 연관 타입만 정의했을 뿐, 특정 타입을 정의하지 않았기 때문이다. 실제로 프로토콜 정의를 준수하기 위해서 구현할 떄는 ItemType을 하나의 타입으로 일관성 있게 구현 하면 된다.
+ 
+ */
+//IntStack 구조체의 Container 프로토콜 준수
+struct IntStack1: Container {
+    //기존 IntStack 구조체 구현
+    var items = [Int]()
+    mutating func push(_ item: Int){
+        items.append(item)
+    }
+    mutating func pop() -> Int {
+        return items.removeLast()
+    }
+    
+    //Container 프로토콜 준수를 위한 구현
+    mutating func append(_ item: Int){
+        self.push(item)
+    }
+    var count: Int {
+        return items.count
+    }
+    subscript(i: Int) -> Int {
+        return items[i]
+    }
+}
+
+/**
+    위 코드의 IntStack 구조체는 Container 프로토콜을 채택했고, 해당 프로토콜을 준수하기 위해 append(_:) 메소드, count 프로퍼티, 서브스크립트를 구현했다. 다만 ItemType 대신 Int 타입을 사용해서 구현했을 뿐이다. 만약 ItemType을 대신 Int 타입을 사용해서 구현했을 뿐이다. 만약 ItemType을 어떤 타입으로 사용할지 조금 더 명확히 해주고 싶다면 IntStack 구조체 구현부에 typealias ItemType = Int 라고 타입 별칭을 줄 수도 있다.
+ */
+
+//IntStack 구조체의 typealias 사용
+struct IntStackAlias: Container {
+    typealias ItemType = Int
+    //기존 IntStack 구조체 구현
+    var items = [ItemType]()
+    mutating func push(_ item: ItemType){
+        return items.append(item)
+    }
+    mutating func pop() -> ItemType {
+        return items.removeLast()
+    }
+    
+    mutating func append(_ item: ItemType) {
+        self.push(item)
+    }
+    var count: ItemType {
+        return items.count
+    }
+    subscript(i: Int) -> ItemType {
+        return items[i]
+    }
+}
+
+/**
+    프로토콜의 연관 타입에 대응하여 실제 타입을 사용할 수도 있지만, 제네릭 타입에서는 연관 타입과 타입 매개변수를 대응시킬 수도 있다.
+
+ 
+ //Stack<Element> 구조체의 Container 프로토콜 준수
+ */
+struct StackTest<Element>: Container {
+    //기존 Stack<Element> 구조체 구현
+    var items = [Element]()
+    mutating func push(_ item: Element) {
+        items.append(item)
+    }
+    mutating func pop() -> Element {
+        return items.removeLast()
+    }
+    
+    mutating func append(_ item: ItemType) {
+        self.push(item)
+    }
+    var count: Int {
+        return items.count
+    }
+    subscript(i: Int) -> Element {
+        return items[i]
+    }
+}
+
+/**
+ 
+ 
+ 
+ 예시에서 Stack은 ItemType이라는 연관 타입 대신 Element라는 타입 매개변수를 사용했다. 그럼에도 Stack 구조체는 Container 프로토콜을 완벽히 준수한다.
+ 
+ 
+            6. 제네릭 서브스크립트
+ 제네릭 함수(메소드)를 구현할 수 있었던 것처럼 서브스크립트도 제네릭을 활용하여 타입에 큰 제약 없이 유연하게 구현할 수 있다. 물론 타입 제약을 사용하여 제네릭을 활용하는 타입에 제약을 줄 수도 있다.
+ */
+extension StackTest {
+    subscript<Indices: Sequence>(indices: Indices) -> [ItemType]
+    where Indices.Iterator.Element == Int {
+        var result = [ItemType]()
+        for index in indices {
+            result.append(self[index])
+        }
+        return result
+    }
+}
+
+var integerStack: StackTest<Int> = StackTest<Int>()
+integerStack.append(1)
+integerStack.append(2)
+integerStack.append(3)
+integerStack.append(4)
+integerStack.append(5)
+integerStack.append(6)
+integerStack.append(7)
+print(integerStack[0...2])
+/**
+ 위 코드에서 StackTest 구조체의 익스텐션으로 서브스크립트를 추가했다. 서브스크립트는 Indince라는 플레이스 홀더를 사용하여 매개변수를 제네릭하게 받아들일 수 있다. Indices는 Sequence 프로토콜을 준수하는 타입으로 제약이 추가되어있다. 또, Indices 타입 Iterator의 Element 타입이 Int 타입이어야하는 제약이 추가됐다.
+ 서브스크립트는 이 Indices 타입이 indices라는 매개변수로 인덱스 값을 받을 수 있다. 그 결과 indices 시퀀스의 인덱스 값에 해당하느 스택 요소의 값을 배열로 반환한다.
  */
