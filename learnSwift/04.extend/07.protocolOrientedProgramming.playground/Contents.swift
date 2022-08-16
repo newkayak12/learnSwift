@@ -314,5 +314,33 @@ let combinedString: String = myIntStack.reduce("") { (result: String, next: Int)
 print(combinedString)
 
 /**
-    이처럼 제네릭은 타입에 한정되지 않도록 다양한 기능을 구현한다. 
+    이처럼 제네릭은 타입에 한정되지 않도록 다양한 기능을 구현한다.
+ 
+ 
+ 
+ 
+                3. 기본 타입 확장
+    프로토콜 초기 구현을 통해서 스위프트의 기본 타입을 확장하여 내가 원하는 기능을 공통적으로 추가해볼 수도 있다. 스위프트 표준 라이브러리에 정의되어 있는 타입은 실제 구현 코드를 보고 수정할 수는 없기에 익스텐션, 프로토콜, 프로토콜의 초기 구현을 사용해서 기본 타입에 기능을 추가할 수 있다.
+ */
+
+protocol SelfPrintable2 {
+    func printSelf()
+}
+extension SelfPrintable2 {
+    func printSelf(){
+        print(self)
+    }
+}
+
+
+extension Int: SelfPrintable2 {}
+extension String: SelfPrintable2 {}
+extension Double: SelfPrintable2 {}
+
+(1024).printSelf()
+(3.14).printSelf()
+("hana").printSelf()
+
+/**
+    위 예시는 코드를 수정할 수 없는 스위프트의 기본 타입인 Int, String, Double에 SelfPrintable2 프로토콜과 그 프로토콜의 초기 구현으로 공통 기능을 추가해본 것이다.
  */

@@ -18,6 +18,8 @@
 		7E11853328746D470067D937 /* 06.operator.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 06.operator.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7E25618728A3E73E009F7CA5 /* 06.generic.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 06.generic.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7E25618828AA24F5009F7CA5 /* 07.protocolOrientedProgramming.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 07.protocolOrientedProgramming.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		7E25618A28ABB98B009F7CA5 /* 01.nestedType.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 01.nestedType.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		7E25618B28ABC4B7009F7CA5 /* 02.pattern.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 02.pattern.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7E939242287AF5F300A11EA8 /* 07.flowController.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 07.flowController.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7E99DCAA28804BC50051BF41 /* 08.function.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 08.function.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		7E9E4A4728A2982D00D07294 /* 05.extension.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = 05.extension.playground; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
@@ -39,6 +41,7 @@
 		7E10352E2871966F007371E8 = {
 			isa = PBXGroup;
 			children = (
+				7E25618928ABB962009F7CA5 /* 05.advancedSwift */,
 				7EF881F72896B19A004201B8 /* 04.extend */,
 				7EF881F22890166A004201B8 /* 03.functionalProgramming */,
 				7EF9AA8C288971440060B951 /* 02.oop */,
@@ -71,6 +74,15 @@
 				7E0561D328858CA400120181 /* 09.optional.playground */,
 			);
 			path = 01.basic;
+			sourceTree = "<group>";
+		};
+		7E25618928ABB962009F7CA5 /* 05.advancedSwift */ = {
+			isa = PBXGroup;
+			children = (
+				7E25618A28ABB98B009F7CA5 /* 01.nestedType.playground */,
+				7E25618B28ABC4B7009F7CA5 /* 02.pattern.playground */,
+			);
+			path = 05.advancedSwift;
 			sourceTree = "<group>";
 		};
 		7EF881F22890166A004201B8 /* 03.functionalProgramming */ = {
