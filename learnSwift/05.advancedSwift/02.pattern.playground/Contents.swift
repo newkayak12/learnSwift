@@ -163,3 +163,158 @@ for dish in dishes {
         case .rice: print("쌀")
     }
 }
+/**
+            6. 옵셔널 패턴
+    옵셔널 패턴(Optional Pattern)은 옵셔널 또는 암시적 추출 옵셔널 열거형에 감싸져 있는 값을 매치시킬 때 사용한다. 옵셔널 패턴은 식별자 패턴 뒤에 물음표를 넣어 표기하며 열거형 케이스 패턴과 동일한 위치에 자리한다. 또, 옵셔널 패턴은 옵셔널 값을 저장하는 배열의 for-in 구문을 통한 순환에서 nil이 아닌 값을 찾는 데도 유용하게 사용한다.
+ */
+var optionalValue: Int? = 100
+if case .some(let value) = optionalValue {
+    print(value)
+}
+
+if case let value? = optionalValue {
+    print(value)
+}
+
+func isItHasValue(_ optionalValue: Int?){
+    guard case .some(let value) = optionalValue else {
+        print("none")
+        return
+    }
+    print(value)
+}
+isItHasValue(optionalValue)
+
+while case .some(let value) = optionalValue {
+    print(value)
+    optionalValue = nil
+}
+print(optionalValue)
+
+let arrayOfOptionalInts: [Int?] = [nil, 2, 3, nil, 5]
+for case let number? in arrayOfOptionalInts {
+    print("Found a \(number)")
+}
+
+
+/**
+                7. 타입 캐스팅 패턴
+ 타입캐스팅 패턴(Type-Casting Pattern)에는 is 패턴과 as 패턴이 있다. is 패턴은 switch의 case 레이블에서만 사용할 수 있다. is 패턴은 is (TYPE_NAME)과 같이 쓸 수 있고 as 패턴은 SomePattern as (TYPE_NAME)과 같이 쓸 수 있다. 이름에서부터 알 수 있듯이 타입캐스팅 패턴은 타입캐스팅을 하거나 타입을 매치시킨다. is 패턴은 프로그램 실행 중에 값의 타입이 is 우측에 쓰여진 타입 또는 그 타입의 자식클래스 타입이면 값과 매치시킨다. is 패턴은 타입캐스팅에 사용되는 as 연산자와 비슷한 역할을 하지만 반된 결과값은 신경쓰지 않는다는 차이가 있다.
+ 
+ as 패턴은 프로그램 실행 중에 값의 타입이 as 우측에 쓰여진 타입 또는 그 타입의 자식 클래스 타입이면 값과 매치시킨다. 만약 매치된다면 매치된 값의 타입은 as 패턴이 원하는 타입으로 캐스팅된다.
+ */
+let someValue3: Any = 100
+switch someValue3 {
+//  타입이 String인지 확인하지만 캐스팅된 값을 사용할 수는 없다.
+    case is String: print("It's String")
+//  타입 확인과 동시에 캐스팅까지 완료되어 value에 저장
+//  값 바인딩 패턴과 결합
+    case let value as Int: print(value + 1)
+    default: print("String도 Int도 아니다.")
+}
+
+
+/**
+ 
+               8. 표현 패턴
+ 표현 패턴(Expression Pattern)은 표현식의 값을 평가한 결과를 이용하는 것이다. 표현 패턴은 switch 구문의 case 레이블에서만 사용할 수 있다. 표현 패턴은 스위프트 표준 라이브러리의 패턴 연산자인 ~= 연산자의 연산 결과가 true를 반환하면 매치시킨다. ~= 연산자는 같은 타입의 두 값을 비교할 때 == 연산자를 사용한다. 표현 패턴은 정수값과 정수의 범위를 나타내는 Range 객체와 매치시킬 수도 있다.
+ 
+ 표현 패턴은 매우 유용한 패턴 중 하나이다. 사실 모든 패턴 중에 가장 활용도가 높은 패턴이다. 그 이유는 ~= 연산자를 중복 정의(overload)하거나 ~= 연산자를 새로 정의하거나 또는 자신이 만든 타입에 ~= 연산자를 구현해준다면 자신이 원하는대로 패턴을 완성시킬 수 있다. 거기에 제네릭까지 추가하면 활용도는 높아진다.
+ */
+switch 3 {
+    case 0...5: print("0 ~ 5")
+    default: print("0보다 작거나 5보다 크다")
+}
+
+var point: (Int, Int) = (1,2)
+//같은 타입간 비교이므로 == 연산자로 비교
+switch point {
+    case (0,0): print("원점")
+    case (-2...2, -2...2): print("(\(point.0), \(point.1))은 원점과 가깝다.")
+    default: print("(\(point.0), \(point.1))")
+}
+
+//String과 Int가 매치되도록 ~= 연산자 정의
+func ~= (pattern: String, value: Int) -> Bool {
+    return pattern == "\(value)"
+}
+point = (0,0)
+//새로 정의된 ~= 연산자를 사용하여 비교
+switch point {
+    case ("0","0"): print("원점")
+    default: print("point (\(point.0) \(point.1) )")
+}
+struct Person {
+    var name: String
+    var age: Int
+}
+let lingo: Person = Person(name: "Lingo", age: 99)
+func ~=(pattern: String, value: Person) -> Bool {
+    return pattern == value.name
+}
+func ~=(pattern: Person, value: Person) -> Bool {
+    return pattern.name == value.name && pattern.age == value.age
+}
+
+switch lingo {
+    case Person(name: "Lingo", age: 99): print("Same Person")
+    case "Lingo": print("HI LINGO!")
+    default: print("I don't know who you are")
+}
+/**
+    표현 패턴은 프로토콜과 제네릭을 더해 특정 프로토콜을 따르는 타입에 대해서 원하는 패턴을 만ㄷ글 수 있다. 또, 스위프트의 함수형 프로그래밍 방식을 따르면 더욱 다양한 패턴 효과를 얻을 수 있다. 스위프트의 함수는 일급 객체여서 함수의 전달인자로 사용할 수 있기 때문이다. 그래서 패턴 매칭을 위한 연산자가 함수라는 점과 함수의 전달인자로 함수를 전달할 수 있다는 점을 고려하면 사용성이 높다.
+ */
+
+//제네릭을 통한 표현 패턴
+protocol Personalize {
+    var name: String { get }
+    var age: Int { get }
+}
+struct Person1: Personalize {
+    var name: String
+    var age: Int
+}
+
+let star: Person1 = Person1(name: "Star", age: 99)
+func ~= <T: Personalize>(pattern: String, value: T) -> Bool {
+    return pattern == value.name
+}
+func ~= <T: Personalize>(pattern: T, value: T) -> Bool {
+    return pattern.name == value.name && pattern.age == value.age
+}
+
+//기존 패턴 연산자가 없더라도 제네릭 패턴 연산자로 똑같이 사용할 수 있다.
+switch star {
+    case Person1(name: "Star", age: 99):print("same person")
+    case "Star": print("Hello Star")
+    default: print("i dont know who you R")
+}
+
+//이번에는 제네릭을 사용하여 패턴 연산자를 정의한다. 이 패턴 자체가 함수이다.
+func ~= <T: Personalize>(pattern: (T) -> Bool, value: T) -> Bool {
+    return pattern(value)
+}
+
+//패턴에 사용할 제네릭 함수
+func young<T: Personalize>(value: T) -> Bool {
+    return value.age < 50
+}
+
+switch star {
+        //패턴 결합을 하면 young(star)와 같은 효과
+    case young: print("\(star.name) is young")
+    default: print("\(star.name) is old")
+}
+
+//패턴에 사용할 제네릭 함수
+func isNamed<T: Personalize>(_ pattern: String) -> ((T) -> Bool){
+    return { (value: T) -> Bool in value.name == pattern }
+}
+switch star {
+        //패턴 결합을 하면 isNamed("Jung")(star)와 같은 효과
+    case isNamed("jung"): print("He is Jung")
+    default: print("Another Person")
+}
+/**
+ 이렇게 패턴과 비교 값이 모두 단순 값이었던 것에 비해 패턴에 함수를 사용해서 함수의 결과를 통해 Bool 값을 얻었다. 단순히 패턴에 함수를 사용하는 것을 넘어서 제네릭을 사용하여 프로토콜을 준수하는 타입 모두가 공통으로 매칭될 수 있다 또한, 사용자 정의 연산자를 적극 활용할 수도 있다.
+ */
