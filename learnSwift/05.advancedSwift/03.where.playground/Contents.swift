@@ -144,5 +144,89 @@ Double(8.0).printSelf()
 Person().printSelf()
 //그 외 SelfPrintable을 준수하는 타입 Person
 /**
-    타입 매개변수와 연관 타입의 제약을 추가하는 데 where 절을 사용하기도 한다. 제네릭 함수(메소드)의 반환 타입 뒤에 where 절을 포함하면 타입 매개변수와 연관 타입에 요구 사항을 추가할 수 있다. 요구 사하잉 여러 개일 때는 쉼표로 구분한다. 이렇게 제네릭의 where 절을 사용한 요구 사항은 타입 매개변수가 특정 클래스를 상속 받았는지 또는 특정 프로토콜을 준수하는 지를 표현할 수 있다. 
+    타입 매개변수와 연관 타입의 제약을 추가하는 데 where 절을 사용하기도 한다. 제네릭 함수(메소드)의 반환 타입 뒤에 where 절을 포함하면 타입 매개변수와 연관 타입에 요구 사항을 추가할 수 있다. 요구 사하잉 여러 개일 때는 쉼표로 구분한다. 이렇게 제네릭의 where 절을 사용한 요구 사항은 타입 매개변수가 특정 클래스를 상속 받았는지 또는 특정 프로토콜을 준수하는 지를 표현할 수 있다.
+ 
+    제네릭의 타입 제약 기능은 where 절을 사용하지 않고  간편하게 타입 제약을 추가한 것이다. 그래서 타입 매개변수에 where 절로 똑같이 타입을 제약하는 기능을 구현할 수도 있다.
+ */
+//where 절을 활용한 타입 매개변수와 연관 타입의 타입 제약 추가
+//타입 매개변수 T가 BinaryInteger 프로토콜을 준수하는 타입
+func doubled1<T>(integerValue: T) -> T where T: BinaryInteger {
+    return integerValue * 2
+}
+//위 함수와 같은 표현이다.
+func doubled2<T: BinaryInteger>(integerValue: T) -> T {
+    return integerValue * 2
+}
+
+//타입 매개변수 T와 U가 CustomStringConvertible 프로토콜을 준수하는 타입
+func prints1<T, U>(first: T, second: U) where T: CustomStringConvertible, U: CustomStringConvertible {
+    print(first)
+    print(second)
+}
+
+//위 함수와 같은 표현이다.
+func prints2<T: CustomStringConvertible, U: CustomStringConvertible>(first: T, second: U){
+    print(first)
+    print(second)
+}
+
+
+// 타입 매개변수 S1, S2가 Sequence 프로토콜을 준수하며 S1, S2가 준수하는 프로토콜인 Sequence 프로토콜의 연관 타입인 Element가 같은 타입
+func compareTwoSequence1<S1, S2>(a: S1, b: S2) where S1: Sequence, S1.Element: Equatable, S2: Sequence, S2.Element: Equatable {
+    //...
+}
+//위 함수와 같은 표현
+func compareTwoSequence2<S1, S2>(a: S1, b: S2) where S1: Sequence, S2: Sequence, S1.Element: Equatable, S1.Element == S2.Element {
+    //...
+}
+//위 함수와 같은 표현
+func compareTwoSequence3<S1: Sequence, S2: Sequence>(a: S1, b: S2) where S1.Element: Equatable, S1.Element == S2.Iterator.Element{
+    //...
+}
+
+//프로토콜 연관 타입에도 타입 제약을 줄 수 있다.
+protocol Container1 {
+    associatedtype ItemType where ItemType: BinaryInteger
+    
+    var count: Int { get }
+    
+    mutating func append(_ item: ItemType)
+    subscript(i: Int) -> ItemType { get }
+}
+//위 표현과 같다.
+protocol Container2 where ItemType: BinaryInteger {
+    associatedtype ItemType
+    
+    var count: Int { get }
+    
+    mutating func append(_ item: ItemType)
+    subscript(i: Int) -> ItemType { get }
+}
+/**
+    연관 타입이 특정 프로토콜을 준수하는 경우에만 제네릭 타입에 프로토콜을 채택하도록 제네릭 타입의 연관 타입에 제약을 줄 수 있다.
+ 
+ //where 절을 활용한 제네릭 타입의 연관 타입 제약 추가
+ */
+protocol Talkable { }
+protocol CallToAll {
+    func callToAll()
+}
+
+struct Person1: Talkable { }
+struct Animal { }
+
+extension Array: CallToAll where Element: Talkable {
+    func callToAll() { }
+}
+
+let people: [Person1] = []
+let cats: [Animal] = []
+
+people.callToAll()
+//cats.callToAll() //컴파일 에러
+
+/**
+    위 예시의 Person1 타입은 Talkable을 준수하지만 Animal은 Talkable을 준수하지 않는다. Element 타입이 Talkable프로토콜을 준수하는 경우에만 Array 타입에 CallToAll을 채택했으므로 Animal 타입을 요소로 갖는 Array 타입은 CallToAll을 채택하지 않는다.
+ 
+    이와 같이 where은 다른 패턴과 조합하면 원하는 추가 요구 사항을 자유롭게 더할 수 있으며, 익스텐션과 제네릭에 사용함으로써 프로토콜 또는 타입에 제약을 추가해줄 수도 있다. 조건 구문이나 논리 연산으로 구현한 코드보다는 훨씬 명확하고 간편하게 사용할 수 있다.
  */
