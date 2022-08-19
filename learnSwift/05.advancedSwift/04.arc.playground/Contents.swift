@@ -214,5 +214,219 @@ rroom = nil // Room 참조 0
  
  
  
-            4. 미소유 참조 
+            4. 미소유 참조
+  참조 횟수를 증가시키지 않고 참조할 수 있는 방법은 약한 참조만 있는 것은 아니다. 약한 참조와 마찬가지로 미소유참조(Unowned Reference)는 인스턴스의 참조 횟수를 증가시키지 않는다. 미소유 참조는 약한 참조와 다르게 자신이 참조하는 인스턴스가 항상 메모리에 존재할 것이라는 전제를 기반으로 동작한다. 즉, 자신이 참조하는 인스턴스가 메모리에서 해제되더라도 스스로 nil을 할당하지 않는다. 그렇기 때문에 미소유 참조를 하는 변수나 프로퍼티는 옵셔널이 아니어도 된다.
+ 
+  그렇지만 미소유 참조를 하면서 메모리에서 해제된 인스턴스에 접근하려 한다면 잘못된 메모리 접근으로 런타임 오류가 발생해서 프로세스가 강제로 종료된다. 따라서 미소유 참조는 참조하는 동안 해당 인스턴스가 메모리에서 해제되지 않으리라는 확신이 있을 때만 사용하 ㄹ수 있다.
+ 
+  참조 타입의 변수나 프로퍼티의 정의 앞에 unowned 키워드를 써주면 그 변수(상수)나 프로퍼티는 자신이 참조하는 인스턴스를 미소유 참조하게 된다.
+ 
+  미소유 참조는 어떤 관계에서 사용할 수 있을까? 예시를 들어보자 사람과 신용카드 관계로 말이다. 사람이 신용카드를 소유하지 않을 수 있지만 신용카는 명의가 꼭 있어야한다. 명의자와 신용카드는 서로 참조해야하는 상황이고 신용카드는 명의자가 꼭 존재한다는 확신이 있을 때 같은 경우에 사용한다.
+ */
+//미소유 참조
+class People {
+    let name: String
+    //카드를 소지할 수도 아닐 수도 있다. + 강한 참조
+    var card: CreditCard?
+    
+    init(name: String) {
+        self.name = name
+    }
+    deinit{ print("\(name) is being deinit")}
+}
+
+class CreditCard {
+    let number: UInt
+    unowned let owner: People //소유자가 있다는 전제하에
+    init(number: UInt, owner: People) {
+        self.number = number
+        self.owner = owner
+    }
+    deinit {
+        print("card #\(number) is being deinit")
+    }
+}
+
+var jisoo: People? = People(name: "jisoo") //people 참조 = 1
+if let people: People = jisoo {
+    //creditcard 참조 = 1
+    people.card = CreditCard(number: 1004, owner: people)
+    //people 참조 = 1
+}
+
+jisoo = nil //people 참조 0
+//creditcard 참조 0
+//둘다 deinit
+/**
+ People는 CreditCard? 타입의 인스턴스를 강한 참조하는 card 프로퍼티가 있고, CreditCard 클래스는 People 타입 인스턴스를 미소유 참조하는 owner 프로퍼티가 있다. jisoo 변수에 새로운 People 클래스의 인스턴스를 할당하면 참조 횟수는 1이 된다. jisoo 변수가 참조하는 인스턴스의 car 프로퍼티에 새로운 CreditCard를 할당하면 그 인스턴스 참조 횟수는 1이된다.
+ 그러나 CreditCard의 이니셜라이저에서 owner 프로퍼티에 미소유 참조되는 People는 참조 횟수가 증가하지 않는다. 그래서 서로 참조되지만 참조 횟수는 모두 1인 상태가 된다. jisoo에 nil을 할당하면 jisoo 변수가 강한 참조하던 인스턴스가 메모리에서 해제되므로 그 인스턴스 card 프로퍼티가 강한 참조하던 CreditCard 클래스의 인스턴스도 참조 횟수가 감소되어 메모리에서 해제된다.
+ 
+ 
+                5. 미소유 참조와 암시적 추출 옵셔널 프로퍼티
+  
+ 약한 참조와 미소유참조의 예제에서 강한 참조 순환 문제 두 가지를 해결해보았다. 그러나 앞의 예시 외 다른 문제가 또 있다. 서로 참조해야하는 프로퍼티에 값이 꼭 있어야하면서도 한 번 초기화 되면 그 이후에는 nil을 할당할 수 없는 조건을 갖춰야하는 경우이다.
+ */
+//미소유참조와 암시적 추출 옵셔널 프로퍼티의 활용
+class Company {
+    let name: String
+    //암시적 추출 옵셔널 프로퍼티( 강한 참조 )
+    var ceo: CEO!
+    
+    init( name: String, ceoName: String ) {
+        self.name = name
+        self.ceo = CEO(name: ceoName, company: self)
+    }
+    
+    func introduce() {
+        print("\(name)의 CEO는 \(ceo.name)이다.")
+    }
+}
+
+class CEO {
+    let name: String
+    
+    unowned let company: Company//미소유참조 상수 프로퍼티
+    init(name: String, company: Company) {
+        self.name = name
+        self.company = company
+    }
+    func introduce() {
+        print("\(name)은 \(company.name)의 CEO이다.")
+    }
+}
+
+let company: Company = Company(name: "무한상사", ceoName: "유재석")
+company.introduce()
+company.ceo.introduce()
+/**
+    Company 초기화 할 때 CEO 인스턴스가 생성되면서 프로퍼티로 할당되어야하고, Company가 존재하는 한 ceo 프로퍼티에는 CEO가 존재한다. CEO는 Company가 꼭 있어야 초기화 할 수 있다. 또한 CEO의 company는 옵셔널이 될 수 없으므로 약한 참조를 사용할 수 없다. 그렇지만 강한 참조를 하면 순환 문제가 생기므로 미소유참조를 한다.
+ 
+    정리하면 암시적 추출 옵셔널 프로퍼티는 이니셜라이저의 2단계 초기화 조건을 충족시키기 위해서 사용했으며 미소유참조 프로퍼티는 약한 참조를 사용할 수 없는 경우 (옵셔널이 아니어야 하거나 상수로 지정해야하는 경우)에 강한 참조를 피하기 위해서 사용할 수 있다.
+ 
+ 
+            6. 클로저의 강한 참조 순환
+    일전에 인스턴스끼리 강한 참조 때문에 발생하는 강한 참조 순환 문제를 살펴본 바가 있다. 그런데 강한 참조 순화나 문제는 두 인스턴스끼리 참조일 떄만 발생하는 것 외에 클로저가 인스턴스의 프로퍼티일 때나, 클로저의 값 획득 특성 때문에 발생한다. 예를 들어 클로저 내부에서 self.someProperty처럼 인스턴스의 프로퍼티에 접근할 때나 클로저 내부에서 self.someMethod() 처럼 인스턴스의 메소드를 호출할 때 값 획득이 발생할 수 있는데, 두 경우 모두 클로저가 self를 획득하므로 강한 참조 순환이 발생한다.
+ 
+    강한 참조 순환이 발생하는 이유는 클로저가 클래스와 같은 참조 타입이기 때문이다. 클로저를 클래스 인스턴스의 프로퍼티로 할당하면 클로저의 참조가 할당된다. 이때 참조 타입과 참조 타입이 서로 강한 참조를 하기 때문에 강한 참조 순환 문제가 발생한다.
+ 
+    이러한 클로저의 강한참조 순환 문제는 클로저의 획득 목록을 통해서 해결할 수 있다. 그런데 클로저의 획득 목록을 통해 강한 참조 순환 문제를 해결하는 방법을 알아보기 전에 강한 참조 순환이 어떻게 일어나게 되는지 알아보는 것도 중요하다.
+ */
+class Book {
+    let title: String
+    let genre: String?
+    
+    lazy var introduce: () -> String = {
+        var introduction: String = "this book name is \(self.title)"
+        guard let genre = self.genre else {
+            return introduction
+        }
+        introduction += " "
+        introduction += "genre is \(genre)"
+        
+        return introduction
+    }
+    
+    init(title: String, genre: String? = nil) {
+        self.title = title
+        self.genre = genre
+    }
+    deinit {
+        print("\(title) is being deinit")
+    }
+}
+
+var book: Book? = Book(title: "sherlock", genre: "detective")
+print(book?.introduce())
+book = nil
+
+/**
+    deinit이 호출되지 않는다. 메모리 누수가 발생한 것으로 보인다. Book 클래스의 introduce 프로퍼티에 클로저를 할당한 후 클로저 내부에서 self 프로퍼티를 사용할 수 있었던 이유는 introduce가 지연 저장 프로퍼티이기 때문이다. 만약 지연 저장 프로퍼티가 아니면 self를 사용하지 못 했을 것이다. lazy로 할당한 클로저 내부에서 Book 클래스 인스턴스의 다른 인스턴스 프로퍼티에 접근하려면 Book 클래스가 모두 초기화되어 사용이 가능한 상태에서만 클로저에 접근할 수 있다. 따라서 클로저 내부에서는 self 프로퍼티를 통해서만 다른 프로퍼티에 접근할 수 있다.
+ 
+    introduce 프로퍼티를 통해 클로저를 호출하면 그 때 클로저는 자신의 내부에 있는 참조 타입 변수를 획득한다. 문제는 클로저는 자신이 호출되면 언제든지 자신 내부의 참조들을 사용할 수 있도록 참조 횟수를 증가시켜 메모리에서 해제되는 것을 방지하는데 이때 자신을 프로퍼티로 갖는 인스턴스 참조 횟수도 증가시킨다.
+ 
+    이렇게 강한 참조 순환이 발생하면 자신을 강한 참조 프로퍼티로 갖는 인스턴스가 메모리에서 해제될 수 없다.
+ 
+        {
+                    self 프로퍼티와 참조 횟수
+            클로저 내부에서 self 프로퍼티를 여러 번 호출하여 접근한다 해도 참조 횟수는 한 번만 증가한다.
+        }
+ 
+ 
+                6.1. 획득 목록
+    위의 문제는 획득 목록(Capture List)를 통해서 해결할 수 있다. 획득 목록은 클로저 내부에서 참조 타입을 획득하는 규칙을 제시해줄 수 있는 기능이다. 예를 들어 위 상황에서 클로저 내부의 self 참조를 약한 참조로 지정할 수도, 강한 참조로 지정할 수도 있다는 뜻이다. 획득목록을 사용하면 때에 따라서, 혹은 각 관계에 따라서 참조 방식을 클로저에 제안할 수 있다.
+    
+    획득 목록은 클로저 내부의 매개변수 목록 이전 위치에 작성해준다. 획득 목록은 참조 방식과 참조할 대상을 대괄호로 둘러싼 목록 형식으로 작성하며 획득 목록 뒤에는 in 키워드를 써준다. 획득 목록에 명시한 요소가 참조 타입이 아니라면 해당 요소들은 클로저가 생성될 때 초기화 된다.
+ */
+
+var a = 0
+var b = 0
+let closure = {
+    [a] in print(a,b)
+    //a는 캡쳐되어 0, b는 변경된 값 10
+    b = 20
+}
+
+a = 10
+b = 10
+closure()
+print(a,b)
+/**
+    위 예시를 보면  변수 a는 클로저 획득 목록을 통해 클로저가 생성될 때 값 0을 획득했지만 b는 따로 획득하지 않았다. 차후에 a와 b값을 변경한 후 클로저를 실행하면 a는 클로저가 생성되었을 때의 값을 갖지만 b는 변경된 값을 사용한다.
+ 
+    a 변수는 클로저가 생성됨과 동시에 획득 목록 내에 다시 a라는 이름의 상수로 초기화된 것이다. 그렇기 떄문에 외부에서 a의 값을 변경하더라도 클로저의 획득 목록을 통한 a와는 별개가 된다. 그러나 v의 경우에는 클로저의 내부와 외부 상관없이 값이 변하는대로 모두 반영됨을 알 수 있다.
+ 
+    그러나 만약 획득 목록에 해당하는 요소가 참조 타입이라면 조금 다른 결과를 볼 수 있다.
+ */
+class SimpleClass {
+    var value: Int = 0
+}
+
+var xValue: SimpleClass = SimpleClass()
+var yValue: SimpleClass = SimpleClass()
+
+let closures = {[xValue] in print(xValue.value, yValue.value)}
+
+xValue.value = 10
+yValue.value = 10
+closures()
+/**
+ 값 타입과는 조금 다른 것을 알 수 있다. 서로 동작은 같다. 두 변수 모두 참조 타입의 인스턴스가 있기 떄문이다. 그렇지만 참조 타입 획득목록에서 어떤 방식으로 참조할 것인지 즉, 강한 획득(Strong Capture)을 할 것인지, 약한 획득(Weak Capture)을 할 것인지, 미소유획득(Unowned Capture)을 할 것인지 정해줄 수 있다. 또 획득의 종류에 따라 참조 횟수를 증가시킬지 결정할 수 있다. 다만 명심할 것은 약한 획득을 하게 되면 획득 목록에서 획득하는 상수가 옵셔널 상수로 지정된다는 것이다. 그 이유는 차후에 클로저 내부에서 약한 획득한 상수를 사용하려고 할 때 이미 메모리에서 해제된 상태일 수 있기 때문이다. 해제된 후에 접근하려 하면 잘못된 접근으로 오류가 발생하므로 안전을 위해 약한 획득은 기본적으로 타입을 옵셔널으로 사용하는 것이다.
+ */
+
+var xVal: SimpleClass? = SimpleClass()
+var yVal: SimpleClass = SimpleClass()
+let closureOptional = { [weak xVal, unowned yVal] in print(xVal?.value, yVal.value)}
+xVal = nil
+yVal.value = 10
+
+closureOptional()
+/**
+    xVal은 약한 참조, yVal은 미소유참조하도록 지정했다. xVal이 약한 참조를 하게 되므로 클로저 내부에서 사용하더라도 클로저는 xVal가 약한 참조를 하게 되므로 클로저 내부에서 사용하더라도 클로저는 xVal가 참조하는 인스턴스의 참조 횟수를 증가시키지 않는다. 그렇게 되면 변수가 xVal가 참조하는 인스턴스가 메모리에서 해제되어 클로저 내부에서도 더 이상 참조가 불가능한 것을 볼 수 있다. yVal은 미소유 참조를 했기 때문에 클로저가 참조 횟수를 증가시키지 않지만, 만약 메모리에서 해제된 상태에서 사용하려 한다면 실행 주엥 오류로 애플리케이션이 강제 종료될 가능성이 있다. 이전 Book예제를 바꿔보도록 하자
+ */
+class Book1 {
+    let title: String
+    let genre: String?
+    lazy var introduce: () -> String = {
+        [unowned self] in var introduction: String = "book name is \(self.title)"
+        guard let genre = genre else {
+            return introduction
+        }
+        introduction += " genre is \(genre)"
+        return introduction
+    }
+    init(title: String, genre: String? = nil) {
+        self.title = title
+        self.genre = genre
+    }
+    deinit {
+        print("\(title) is being deinit")
+    }
+}
+
+var book1: Book1? = Book1(title: "swift book", genre: "programming")
+print(book1?.introduce())
+book1 = nil
+
+/**
+    위 예시를 보면 의도적으로 메모리에서 해제되는 것을 알 수 있다. 클로저 내에서 self를 미소유참조하도록 획득 목록에 명시했기 때문이다. self 프로퍼티를 미소유참조하도록 한 것은, 해당 인스턴스가 존재하지 않는다면 프로퍼티도 호출할 수 없으므로 self는 미소유참조를 하더라도 실행 중에 오류를 발생시킬 가능성이 거의 없다고 볼 수 있기 때문이다. self를 미소유 참조 지정했을 때 메모리 해제시 참조하면  잘못된 메모리 접근을 야기한다. 그러므로 미소유 참조는 신중하게 해야하며, 문제가 될 소지가 있다면 약한 참조를 하는 것이 좋다.
  */
