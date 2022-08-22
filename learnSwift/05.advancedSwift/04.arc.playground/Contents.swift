@@ -430,3 +430,61 @@ book1 = nil
 /**
     위 예시를 보면 의도적으로 메모리에서 해제되는 것을 알 수 있다. 클로저 내에서 self를 미소유참조하도록 획득 목록에 명시했기 때문이다. self 프로퍼티를 미소유참조하도록 한 것은, 해당 인스턴스가 존재하지 않는다면 프로퍼티도 호출할 수 없으므로 self는 미소유참조를 하더라도 실행 중에 오류를 발생시킬 가능성이 거의 없다고 볼 수 있기 때문이다. self를 미소유 참조 지정했을 때 메모리 해제시 참조하면  잘못된 메모리 접근을 야기한다. 그러므로 미소유 참조는 신중하게 해야하며, 문제가 될 소지가 있다면 약한 참조를 하는 것이 좋다.
  */
+//획득 목록의 미소유참조로 인한 차후 접근 문제 발생
+var book2: Book1? = Book1(title: "A", genre: "A+");
+var book3: Book1? = Book1(title: "B", genre: "B+")
+//
+book3?.introduce = book2?.introduce ?? {" "}
+//book2의 introduce에 book3의 introduce 클로저의 참조 할당
+//
+print(book2?.introduce())
+// 아직 book3이 참조하는 인스턴스가 해제되지 않았기 때문에 클로저 내부에서 self(book3가 참조하는 인스턴스) 참조 가능
+
+book2 = nil
+//print(book3?.introduce())
+//이미 메모리에서 해제된 book2 참조
+/**이런경우 약한 참조로 변경하여 옵셔널로 사용해도 무방하다.*/
+class PersonA {
+    let name: String
+    let hobby: String?
+    
+    lazy var introduce: ()->String = { [weak self] in
+        //`self`는 예약어와 키워드
+        guard let `self` = self else {
+            return "원래 참조 인스턴스 삭제"
+        }
+        var introduction: String = "My name is \(self.name)."
+        
+        guard let hobby = self.hobby else {
+            return introduction
+        }
+        
+        introduction += " My hobby is \(hobby)"
+        return introduction
+    }
+    init(name: String, hobby: String? = nil){
+        self.name = name
+        self.hobby = hobby
+    }
+    
+    deinit {
+        print("\(name) is being deinit")
+    }
+}
+
+var yg1: PersonA? = PersonA(name: "yj", hobby: "eating")
+var hn1: PersonA? = PersonA(name: "hn", hobby: "guitar")
+
+// hn1의 introduce 프로퍼티에 yg1 introduce 프로퍼티 클로저의 참조 할당
+hn1?.introduce = yg1?.introduce ?? {" "}
+
+// yg1 참조하는 인스턴스가 해제되지 않았기 떄문에 클로저 내부에서 self(yg1 변수가 참조하는 인스턴스) 참조 가능
+print(yg1?.introduce())
+
+yg1 = nil
+
+print(hn1?.introduce())
+
+/**
+ 이처럼 클로저의 획득 특성 때문에 클로저가 프로퍼티로 사용될 경우 발생할 수 있는 강한참조 순환 문제는 클로저의 획득 목록을 통해 해결할 수 있는 것을 알 수 있다.
+ */
